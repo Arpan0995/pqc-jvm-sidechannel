@@ -7,7 +7,10 @@ import org.pqcsidechannel.measure.TimerCalibration;
 import org.pqcsidechannel.stats.LeakageReport;
 import org.pqcsidechannel.targets.controls.ConstantTimeCompareTarget;
 import org.pqcsidechannel.targets.controls.EarlyExitCompareTarget;
+import org.pqcsidechannel.targets.mlkem.MlKem768DecapRejectionTarget;
+import org.pqcsidechannel.targets.mlkem.MlKem768DecapValidTarget;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -26,9 +29,14 @@ import java.util.function.Supplier;
  */
 public final class Runner {
 
-    private static final Map<String, Supplier<MeasurementTarget>> TARGETS = Map.of(
-            "positive-control", EarlyExitCompareTarget::new,
-            "negative-control", ConstantTimeCompareTarget::new);
+    private static final Map<String, Supplier<MeasurementTarget>> TARGETS = new LinkedHashMap<>();
+
+    static {
+        TARGETS.put("positive-control", EarlyExitCompareTarget::new);
+        TARGETS.put("negative-control", ConstantTimeCompareTarget::new);
+        TARGETS.put("mlkem-decap-valid", MlKem768DecapValidTarget::new);
+        TARGETS.put("mlkem-decap-rejection", MlKem768DecapRejectionTarget::new);
+    }
 
     public static void main(String[] args) {
         String targetName = "positive-control";
