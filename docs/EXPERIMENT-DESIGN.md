@@ -125,10 +125,18 @@ Port the dudect leakage-detection procedure (Reparaz, Balasch, Verbauwhede, 2017
 ### 6.2 TVLA (corroborating, for robustness)
 
 Run Test Vector Leakage Assessment (Welch's t on fixed-vs-random, the same statistical core used in
-hardware CT evaluation, ISO/IEC 17825 lineage) as an independent cross-check, and — as a stronger
-non-parametric backstop that does not assume normal tails — a permutation test on the difference of
-medians. Agreement between dudect, TVLA, and the permutation test guards against a single test's
-assumptions driving the conclusion.
+hardware CT evaluation, ISO/IEC 17825 lineage) as an independent cross-check, and — as a
+non-parametric backstop that does not assume normal tails — the **Mann–Whitney U (rank-sum) test**.
+The rank-sum test is deterministic, runs on the full sample without subsampling, and is robust to the
+heavy right tail that timing distributions exhibit (from preemption/GC). Agreement between the dudect
+cropped-t, TVLA Welch-t, and Mann–Whitney U guards against a single test's assumptions driving the
+conclusion.
+
+> Design note (amendment to v0.1): an earlier draft named "a permutation test on the difference of
+> medians" for this role. Mann–Whitney U is chosen instead because it is deterministic and evaluates
+> the full sample in O(N log N), avoiding the subsampling that a permutation test would require at our
+> sample sizes (≥ 1e6). This change is made before any data collection, so the pre-registration is
+> intact.
 
 ### 6.3 Runtime attribution (RQ2 / RQ3)
 
