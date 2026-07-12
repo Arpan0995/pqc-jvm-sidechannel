@@ -32,8 +32,21 @@ function of (key, message). Passing `ParametersWithRandom(privateKey, random)` p
   proves the variance in RQ-D1 is input-driven, not an artifact of ML-DSA's machinery or the harness.)
 - **RQ-D3 (randomness contribution, future).** Does hedged signing add timing variance beyond the
   deterministic baseline for the same message?
-- **RQ-D4 (key dependence / exploitability, future).** Does signing time depend on the secret key
-  (fixed-key vs random-key), and can the iteration-count channel be tied to key material?
+- **RQ-D4 (key dependence / exploitability).** Does signing time depend on the secret *key*? This is
+  the actual exploitability question — message-dependence (RQ-D1) leaks a public value, whereas
+  key-dependence would leak the secret. **Design:** two independently generated fixed keys A (class 0)
+  and B (class 1), both signing *random* messages under deterministic signing. Both classes draw from
+  the same random-message distribution, so the message contribution is a common nuisance that averages
+  out and the only systematic difference between classes is the key. A LEAKY verdict means the two
+  keys have distinguishable signing-time distributions (a key-dependent channel); a CLEAN verdict
+  bounds key-dependence — the reassuring outcome, and the *expected* one, since ML-DSA's rejection rate
+  is designed to be essentially key-independent (expected iteration count is set by the parameters, not
+  the specific key). Either way it is a real result, and it sharpens the RQ-D1 finding: is the
+  variable timing driven by the public message or by the secret key?
+
+  *Caveat:* the two keys live at different addresses, so an incidental memory-placement effect could
+  in principle contribute; if a signal appears, re-run with the A/B seeds swapped — a real key-effect's
+  sign behavior should track the keys, not the class label.
 
 ## Hypotheses
 

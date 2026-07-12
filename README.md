@@ -28,6 +28,7 @@ collection so a negative result carries the same weight as a positive one.
 | ML-KEM-768 | decapsulation (valid; valid-vs-rejected FO path) | constant-time — no leakage detected |
 | ML-DSA-65 | signing (fixed vs random message, deterministic) | input-dependent (rejection sampling), ~1.9× |
 | ML-DSA-65 | signing (fixed message) | constant-time |
+| ML-DSA-65 | signing (key A vs key B / 6 keys, random messages) | small but real **key-dependence** (~1–1.5%) |
 
 The detector is validated by a synthetic positive/negative control pair and by real-cryptography
 controls. See [`results/`](results/): [control validation](results/CONTROL-VALIDATION.md),

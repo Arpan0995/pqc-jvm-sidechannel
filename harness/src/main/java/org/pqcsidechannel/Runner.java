@@ -8,6 +8,7 @@ import org.pqcsidechannel.stats.LeakageReport;
 import org.pqcsidechannel.targets.controls.ConstantTimeCompareTarget;
 import org.pqcsidechannel.targets.controls.EarlyExitCompareTarget;
 import org.pqcsidechannel.targets.mldsa.MlDsa65SignFixedMessageTarget;
+import org.pqcsidechannel.targets.mldsa.MlDsa65SignKeyDependenceTarget;
 import org.pqcsidechannel.targets.mldsa.MlDsa65SignMessageTarget;
 import org.pqcsidechannel.targets.mlkem.MlKem768DecapRejectionTarget;
 import org.pqcsidechannel.targets.mlkem.MlKem768DecapValidTarget;
@@ -40,6 +41,7 @@ public final class Runner {
         TARGETS.put("mlkem-decap-rejection", MlKem768DecapRejectionTarget::new);
         TARGETS.put("mldsa-sign-message", MlDsa65SignMessageTarget::new);
         TARGETS.put("mldsa-sign-fixed", MlDsa65SignFixedMessageTarget::new);
+        TARGETS.put("mldsa-sign-keydep", MlDsa65SignKeyDependenceTarget::new);
     }
 
     public static void main(String[] args) {

@@ -83,4 +83,21 @@ class MlDsaTargetTest {
         assertTrue(s.class0().length > 0 && s.class1().length > 0,
                 "both classes should receive measurements");
     }
+
+    @Test
+    void keyDependenceUsesTwoDistinctKeys() {
+        // The RQ-D4 target contrasts two independently generated keys; they must actually differ.
+        MlDsa65Keys a = new MlDsa65Keys(0x0D5A65L);
+        MlDsa65Keys b = new MlDsa65Keys(0x0D5A66L);
+        assertFalse(Arrays.equals(a.publicKey.getEncoded(), b.publicKey.getEncoded()),
+                "the two key-dependence keys must be different");
+    }
+
+    @Test
+    void keyDependenceTargetRunsThroughTheMeasurementHarness() {
+        Measurement.Samples s = new Measurement(
+                new MlDsa65SignKeyDependenceTarget(), Measurement.Config.of(2_000)).run();
+        assertTrue(s.class0().length > 0 && s.class1().length > 0,
+                "both classes should receive measurements");
+    }
 }
