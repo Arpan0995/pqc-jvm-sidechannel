@@ -15,11 +15,23 @@ studied? This repository is the experiment that answers it.
 
 ## Status
 
-Design phase. The full pre-registered experimental design — research questions, hypotheses,
-threat model, statistical plan, and validity threats — is in
-[`docs/EXPERIMENT-DESIGN.md`](docs/EXPERIMENT-DESIGN.md). Hypotheses and the leakage-detection
-threshold (`|t| > 4.5`) are fixed **before** data collection so a negative result carries the same
-weight as a positive one.
+Pipeline validated; first algorithm results in. The pre-registered design — research questions,
+hypotheses, threat model, statistical plan, and validity threats — is in
+[`docs/EXPERIMENT-DESIGN.md`](docs/EXPERIMENT-DESIGN.md) (ML-KEM) and
+[`docs/MLDSA-DESIGN.md`](docs/MLDSA-DESIGN.md) (ML-DSA). Thresholds are fixed **before** data
+collection so a negative result carries the same weight as a positive one.
+
+**Findings so far** (exploratory macOS/arm64 host; authoritative runs pending on pinned Linux/x86):
+
+| Standard | Operation | Result |
+|---|---|---|
+| ML-KEM-768 | decapsulation (valid; valid-vs-rejected FO path) | constant-time — no leakage detected |
+| ML-DSA-65 | signing (fixed vs random message, deterministic) | input-dependent (rejection sampling), ~1.9× |
+| ML-DSA-65 | signing (fixed message) | constant-time |
+
+The detector is validated by a synthetic positive/negative control pair and by real-cryptography
+controls. See [`results/`](results/): [control validation](results/CONTROL-VALIDATION.md),
+[ML-KEM](results/MLKEM-768-RESULTS.md), [ML-DSA](results/MLDSA-65-RESULTS.md).
 
 ## Approach in one paragraph
 
@@ -44,10 +56,22 @@ pinned-frequency, core-isolated Linux/x86-64 host (see design doc §8–§9).
 ## Layout
 
 ```
-docs/EXPERIMENT-DESIGN.md   Pre-registered design (read this first)
-harness/                    Measurement + leakage-analysis code (not yet written)
-results/                    Raw timing data, control outcomes, analysis (per-run, reproducible)
+docs/                       Pre-registered designs (EXPERIMENT-DESIGN.md, MLDSA-DESIGN.md)
+harness/                    Measurement engine, leakage statistics, targets, CLI runner
+results/                    Control validation + per-algorithm findings (reproducible)
 ```
+
+## Running
+
+```
+mvn -q compile
+java -cp "harness/target/classes:<bcprov-jdk18on-1.84.jar>" \
+    org.pqcsidechannel.Runner --target=<name> --n=<measurements>
+```
+
+Targets: `positive-control`, `negative-control`, `mlkem-decap-valid`, `mlkem-decap-rejection`,
+`mldsa-sign-message`, `mldsa-sign-fixed`. JIT/GC configuration is controlled by JVM flags (e.g.
+`-Xint`, `-XX:TieredStopAtLevel=1`, `-XX:+UseEpsilonGC`) and recorded in every result.
 
 ## License
 
