@@ -17,8 +17,9 @@ studied? This repository is the experiment that answers it.
 
 Pipeline validated; first algorithm results in. The pre-registered design — research questions,
 hypotheses, threat model, statistical plan, and validity threats — is in
-[`docs/EXPERIMENT-DESIGN.md`](docs/EXPERIMENT-DESIGN.md) (ML-KEM) and
-[`docs/MLDSA-DESIGN.md`](docs/MLDSA-DESIGN.md) (ML-DSA). Thresholds are fixed **before** data
+[`docs/EXPERIMENT-DESIGN.md`](docs/EXPERIMENT-DESIGN.md) (ML-KEM),
+[`docs/MLDSA-DESIGN.md`](docs/MLDSA-DESIGN.md) (ML-DSA), and
+[`docs/SLHDSA-DESIGN.md`](docs/SLHDSA-DESIGN.md) (SLH-DSA). Thresholds are fixed **before** data
 collection so a negative result carries the same weight as a positive one.
 
 **Findings so far** (exploratory macOS/arm64 host; authoritative runs pending on pinned Linux/x86):
@@ -29,6 +30,7 @@ collection so a negative result carries the same weight as a positive one.
 | ML-DSA-65 | signing (fixed vs random message, deterministic) | input-dependent (rejection sampling), ~1.9× |
 | ML-DSA-65 | signing (fixed message) | constant-time |
 | ML-DSA-65 | signing (key A vs key B / 6 keys, random messages) | small but real **key-dependence** (~1–1.5%) |
+| SLH-DSA sha2-128f | signing (fixed vs random message) | constant-time — no leakage detected |
 
 The detector is validated by a synthetic positive/negative control pair and by real-cryptography
 controls. See [`results/`](results/): [control validation](results/CONTROL-VALIDATION.md),
@@ -71,8 +73,9 @@ java -cp "harness/target/classes:<bcprov-jdk18on-1.84.jar>" \
 ```
 
 Targets: `positive-control`, `negative-control`, `mlkem-decap-valid`, `mlkem-decap-rejection`,
-`mldsa-sign-message`, `mldsa-sign-fixed`. JIT/GC configuration is controlled by JVM flags (e.g.
-`-Xint`, `-XX:TieredStopAtLevel=1`, `-XX:+UseEpsilonGC`) and recorded in every result.
+`mldsa-sign-message`, `mldsa-sign-fixed`, `mldsa-sign-keydep`, `slhdsa-sign-message`. JIT/GC
+configuration is controlled by JVM flags (e.g. `-Xint`, `-XX:TieredStopAtLevel=1`,
+`-XX:+UseEpsilonGC`) and recorded in every result.
 
 ## License
 

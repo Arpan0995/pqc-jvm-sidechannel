@@ -12,6 +12,7 @@ import org.pqcsidechannel.targets.mldsa.MlDsa65SignKeyDependenceTarget;
 import org.pqcsidechannel.targets.mldsa.MlDsa65SignMessageTarget;
 import org.pqcsidechannel.targets.mlkem.MlKem768DecapRejectionTarget;
 import org.pqcsidechannel.targets.mlkem.MlKem768DecapValidTarget;
+import org.pqcsidechannel.targets.slhdsa.SlhDsaSha2128fSignMessageTarget;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -42,6 +43,7 @@ public final class Runner {
         TARGETS.put("mldsa-sign-message", MlDsa65SignMessageTarget::new);
         TARGETS.put("mldsa-sign-fixed", MlDsa65SignFixedMessageTarget::new);
         TARGETS.put("mldsa-sign-keydep", MlDsa65SignKeyDependenceTarget::new);
+        TARGETS.put("slhdsa-sign-message", SlhDsaSha2128fSignMessageTarget::new);
     }
 
     public static void main(String[] args) {
