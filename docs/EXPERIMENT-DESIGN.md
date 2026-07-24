@@ -1,9 +1,9 @@
-# Experimental Design — Timing Side-Channel Leakage of ML-KEM and ML-DSA on the JVM
+# Experimental Design - Timing Side-Channel Leakage of ML-KEM and ML-DSA on the JVM
 
 **Working title:** *Does the Managed Runtime Leak? A Constant-Time Analysis of NIST Post-Quantum Cryptography on the Java Virtual Machine*
 
 **Author:** Arpan Sharma
-**Status:** Design draft v0.1 — pre-registration of hypotheses and method. No results yet.
+**Status:** Design draft v0.1 - pre-registration of hypotheses and method. No results yet.
 **Repository:** `pqc-jvm-sidechannel` (standalone; not part of `PQC-Java-Library-Comparison` or `pqc-migration-readiness`)
 
 ---
@@ -11,8 +11,8 @@
 ## 1. Motivation and gap
 
 FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), and FIPS 205 (SLH-DSA) are now the U.S. standards for
-post-quantum key establishment and digital signatures. Constant-time behavior — the property that
-execution time does not depend on secret data — is a hard requirement for any implementation that
+post-quantum key establishment and digital signatures. Constant-time behavior - the property that
+execution time does not depend on secret data - is a hard requirement for any implementation that
 handles long-lived secrets, because timing dependence is a remotely observable side channel that has
 repeatedly broken deployed cryptography (Lucky 13, the various RSA/ECDSA timing attacks, and, for PQC
 specifically, the KyberSlash division-timing family disclosed in 2024).
@@ -20,7 +20,7 @@ specifically, the KyberSlash division-timing family disclosed in 2024).
 The published constant-time literature is almost entirely about C and assembly implementations,
 analyzed with tools like `dudect`, TIMECOP/ctgrind, and hardware-counter TVLA. There is a **structural
 gap**: no published work systematically characterizes whether *managed-runtime* implementations of the
-NIST PQC standards — specifically pure-Java implementations running on the JVM — introduce or mask
+NIST PQC standards - specifically pure-Java implementations running on the JVM - introduce or mask
 timing leakage through runtime-specific mechanisms that simply do not exist in a C build:
 
 - **Just-in-time (JIT) compilation.** HotSpot begins in the interpreter, then recompiles hot methods
@@ -34,7 +34,7 @@ timing leakage through runtime-specific mechanisms that simply do not exist in a
 
 This matters in practice, not just in theory: Java dominates enterprise and government backend systems,
 and NIST SP 800-208 together with the FIPS 140-3 validation regime require modules to resist side-channel
-attack — yet there is no guidance or evidence base for the JVM. This is the exact compliance gap named in
+attack - yet there is no guidance or evidence base for the JVM. This is the exact compliance gap named in
 the petitioner's filed research roadmap (2028 project).
 
 ## 2. Research questions
@@ -50,7 +50,7 @@ the petitioner's filed research roadmap (2028 project).
   compare to a JNI-wrapped native implementation (`liboqs` via `liboqs-java`), which shares the JVM's GC
   and scheduling environment but executes constant-time-hardened native code?
 
-RQ1 establishes whether there is a problem. RQ2 is the scientific core — it isolates *the JVM itself* as a
+RQ1 establishes whether there is a problem. RQ2 is the scientific core - it isolates *the JVM itself* as a
 potential leakage source, which is the novel contribution. RQ3 provides a reference point that separates
 "managed runtime effects" from "algorithm/implementation effects."
 
@@ -60,11 +60,11 @@ potential leakage source, which is the novel contribution. RQ3 provides a refere
   significant timing difference between two secret-dependent input classes under the dudect fixed-vs-random
   methodology (rejection of the constant-time null at the pre-set threshold).
 - **H2.** Leakage signal (effect size) is **larger** under full tiered JIT than under `-Xint`, and the
-  *shape* of the timing distribution changes across execution modes — evidence that a component of any
+  *shape* of the timing distribution changes across execution modes - evidence that a component of any
   observed leakage is runtime-induced rather than purely algorithmic.
 - **H3.** GC configuration (G1 vs. Epsilon) changes the tail behavior of the timing distribution;
   allocation-driven pauses contribute to measured variance and can confound naive leakage tests.
-- **H0 (the honest null).** It is a fully publishable outcome for H1 to be *rejected* — i.e., to
+- **H0 (the honest null).** It is a fully publishable outcome for H1 to be *rejected* - i.e., to
   demonstrate with adequate statistical power that these implementations are constant-time on the JVM to
   within a stated detection bound. A rigorous negative result on a compliance-relevant question is a
   contribution, not a failure. The design must therefore be powered to support a credible negative claim,
@@ -78,7 +78,7 @@ potential leakage source, which is the novel contribution. RQ3 provides a refere
   co-resident timing-attacker model used by dudect and TVLA. We do **not** model remote-network timing
   attacks in this study (that is Project 2's territory), nor power/EM channels.
 - **Secret of interest:** the ML-KEM decapsulation secret key (leakage would enable a KEM key-recovery /
-  Fujisaki–Okamoto-rejection-oracle style attack) and the ML-DSA signing key / per-signature nonce path.
+  Fujisaki - Okamoto-rejection-oracle style attack) and the ML-DSA signing key / per-signature nonce path.
 - **Out of scope:** cache attacks, speculative-execution channels (Spectre-class), multi-tenant cloud
   co-residency specifics, and fault attacks. Named explicitly so reviewers know the boundary.
 
@@ -125,15 +125,15 @@ Port the dudect leakage-detection procedure (Reparaz, Balasch, Verbauwhede, 2017
 ### 6.2 TVLA (corroborating, for robustness)
 
 Run Test Vector Leakage Assessment (Welch's t on fixed-vs-random, the same statistical core used in
-hardware CT evaluation, ISO/IEC 17825 lineage) as an independent cross-check, and — as a
-non-parametric backstop that does not assume normal tails — the **Mann–Whitney U (rank-sum) test**.
+hardware CT evaluation, ISO/IEC 17825 lineage) as an independent cross-check, and - as a
+non-parametric backstop that does not assume normal tails - the **Mann - Whitney U (rank-sum) test**.
 The rank-sum test is deterministic, runs on the full sample without subsampling, and is robust to the
 heavy right tail that timing distributions exhibit (from preemption/GC). Agreement between the dudect
-cropped-t, TVLA Welch-t, and Mann–Whitney U guards against a single test's assumptions driving the
+cropped-t, TVLA Welch-t, and Mann - Whitney U guards against a single test's assumptions driving the
 conclusion.
 
 > Design note (amendment to v0.1): an earlier draft named "a permutation test on the difference of
-> medians" for this role. Mann–Whitney U is chosen instead because it is deterministic and evaluates
+> medians" for this role. Mann - Whitney U is chosen instead because it is deterministic and evaluates
 > the full sample in O(N log N), avoiding the subsampling that a permutation test would require at our
 > sample sizes (≥ 1e6). This change is made before any data collection, so the pre-registration is
 > intact.
@@ -145,7 +145,7 @@ settings. For RQ3, run the identical harness against liboqs-java. Correlate leak
 compilation and GC events captured via JDK Flight Recorder to attribute variance to concrete runtime
 events rather than inferring it.
 
-### 6.4 Controls (mandatory — these make the result trustworthy)
+### 6.4 Controls (mandatory - these make the result trustworthy)
 
 - **Positive control:** a deliberately non-constant-time function (e.g., an early-exit `memcmp`-style
   byte-array comparison, or a secret-dependent branch with a `Thread.sleep`/busy-loop delta). The pipeline
@@ -201,7 +201,7 @@ events rather than inferring it.
 ## 10. Deliverables and target venues
 
 - **Artifact:** an open-source, reusable JVM constant-time / leakage-testing harness (dudect + TVLA +
-  permutation test, with the control suite) — useful beyond this paper, which strengthens the contribution.
+  permutation test, with the control suite) - useful beyond this paper, which strengthens the contribution.
 - **Paper 1 (primary):** the leakage characterization of ML-KEM / ML-DSA on the JVM with runtime attribution.
   - Positive-result venues (if leakage found): CHES/TCHES, PQCrypto, ACNS.
   - Compliance/engineering framing (either outcome): IEEE SecDev, ACSAC, ARES.
@@ -213,7 +213,7 @@ events rather than inferring it.
 - Not a full key-recovery exploit; we measure *leakage*, and discuss exploitability, but a working
   end-to-end attack is future work if strong leakage is found.
 - Not power/EM/cache/Spectre channels.
-- Not a performance/throughput benchmark — that is what `PQC-Java-Library-Comparison` already covers; this
+- Not a performance/throughput benchmark - that is what `PQC-Java-Library-Comparison` already covers; this
   repo is deliberately kept separate.
 
 ---

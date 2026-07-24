@@ -3,8 +3,8 @@
 **Constant-time / timing side-channel analysis of NIST post-quantum cryptography (ML-KEM, ML-DSA) on the Java Virtual Machine.**
 
 Do pure-Java implementations of FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA) leak secret-dependent timing
-through JVM-specific mechanisms — JIT tiering, garbage collection, and non-constant-time library
-primitives — that do not exist in the C/assembly implementations the constant-time literature has
+through JVM-specific mechanisms - JIT tiering, garbage collection, and non-constant-time library
+primitives - that do not exist in the C/assembly implementations the constant-time literature has
 studied? This repository is the experiment that answers it.
 
 > This is a **security / leakage** study. It is intentionally separate from
@@ -15,8 +15,8 @@ studied? This repository is the experiment that answers it.
 
 ## Status
 
-Pipeline validated; first algorithm results in. The pre-registered design — research questions,
-hypotheses, threat model, statistical plan, and validity threats — is in
+Pipeline validated; first algorithm results in. The pre-registered design - research questions,
+hypotheses, threat model, statistical plan, and validity threats - is in
 [`docs/EXPERIMENT-DESIGN.md`](docs/EXPERIMENT-DESIGN.md) (ML-KEM),
 [`docs/MLDSA-DESIGN.md`](docs/MLDSA-DESIGN.md) (ML-DSA), and
 [`docs/SLHDSA-DESIGN.md`](docs/SLHDSA-DESIGN.md) (SLH-DSA). Thresholds are fixed **before** data
@@ -26,11 +26,11 @@ collection so a negative result carries the same weight as a positive one.
 
 | Standard | Operation | Result |
 |---|---|---|
-| ML-KEM-768 | decapsulation (valid; valid-vs-rejected FO path) | constant-time — no leakage detected |
+| ML-KEM-768 | decapsulation (valid; valid-vs-rejected FO path) | constant-time - no leakage detected |
 | ML-DSA-65 | signing (fixed vs random message, deterministic) | input-dependent (rejection sampling), ~1.9× |
 | ML-DSA-65 | signing (fixed message) | constant-time |
-| ML-DSA-65 | signing (key A vs key B / 6 keys, random messages) | small but real **key-dependence** (~1–1.5%) |
-| SLH-DSA sha2-128f | signing (fixed vs random message) | constant-time — no leakage detected |
+| ML-DSA-65 | signing (key A vs key B / 6 keys, random messages) | small but real **key-dependence** (~1-1.5%) |
+| SLH-DSA sha2-128f | signing (fixed vs random message) | constant-time - no leakage detected |
 
 The detector is validated by a synthetic positive/negative control pair and by real-cryptography
 controls. See [`results/`](results/): [control validation](results/CONTROL-VALIDATION.md),
@@ -54,7 +54,7 @@ runtime versus the algorithm, and compare pure-Java BouncyCastle against a JNI-w
 - Maven multi-module
 
 Apple-Silicon (arm64) runs are **exploratory only**; authoritative runs for publication are on a
-pinned-frequency, core-isolated Linux/x86-64 host (see design doc §8–§9).
+pinned-frequency, core-isolated Linux/x86-64 host (see design doc §8 - §9).
 
 ## Layout
 

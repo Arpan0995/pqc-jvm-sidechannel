@@ -1,4 +1,4 @@
-# Pre-registration — ML-DSA-65 timing discrimination (algorithmic floor vs implementation residual)
+# Pre-registration - ML-DSA-65 timing discrimination (algorithmic floor vs implementation residual)
 
 **Frozen before any C-phase cross-key timing analysis.** This file fixes the strata, statistics,
 thresholds, corrections, replication requirement, and the outcome→decision mapping *in advance*, so
@@ -8,20 +8,20 @@ collection begins, this file may only be appended to (with dated notes), never e
 **Status at freeze:** Gates A, B1a, B1b, C1a, C1b all PASS. The ML-DSA signing path is byte-identical
 1.84↔1.85 (`mldsa_1.84_vs_1.85_diff.md`). No cross-key timing distribution has been examined. The
 descriptive facts used below (ML-DSA's expected iteration count; which loop operations early-exit)
-come from the algorithm design and from reading byte-identical source — not from any key-comparison
+come from the algorithm design and from reading byte-identical source - not from any key-comparison
 result.
 
 ---
 
 ## 0. The question, made precise
 
-ML-DSA signing runs a rejection loop. Each iteration performs a fixed structural sequence — ExpandMask,
-NTT, matrix·vector, decompose, SampleInBall, three norm checks, a hint check — and either restarts (at
+ML-DSA signing runs a rejection loop. Each iteration performs a fixed structural sequence - ExpandMask,
+NTT, matrix·vector, decompose, SampleInBall, three norm checks, a hint check - and either restarts (at
 whichever check failed) or accepts. Two quantities determine "how much algorithmic work" a signature
 did:
 
-- **`iterations`** — total loop iterations (the coarse driver of signing time), and
-- **the reject-stage multiset** — how many iterations exited at `‖z‖∞`, `‖r0‖∞`, `‖c·t0‖∞`, hint-weight,
+- **`iterations`** - total loop iterations (the coarse driver of signing time), and
+- **the reject-stage multiset** - how many iterations exited at `‖z‖∞`, `‖r0‖∞`, `‖c·t0‖∞`, hint-weight,
   and the single accept. A "late reject" costs more than an "early reject", so the multiset, not just
   the count, pins the algorithmic cost.
 
@@ -33,7 +33,7 @@ profile_key = iterations : (rej_z, rej_r0, rej_ct0, rej_hint, accept)   # accept
 
 Two signatures with the same `profile_key` executed the **same algorithmic branch structure**, and
 therefore the same count of every expensive structural operation (SHAKE blocks for ExpandMask, NTTs,
-pointwise products, decompose/makeHint passes). This is verified from source, not assumed — see §1.
+pointwise products, decompose/makeHint passes). This is verified from source, not assumed - see §1.
 
 **The discrimination question:** *after conditioning on `profile_key`, does mean signing time still
 depend on the key?*
@@ -48,18 +48,18 @@ Within one `profile_key`, every loop operation runs a fixed number of times **ex
 value-dependent implementation quantities, both confirmed by reading the (byte-identical) 1.85 source
 and both instrumented:
 
-1. **`norm_scan_coeffs` — `Poly.checkNorm` early-exit.** `checkNorm` scans coefficients and
+1. **`norm_scan_coeffs` - `Poly.checkNorm` early-exit.** `checkNorm` scans coefficients and
    `return true` on the first out-of-bound one. The number scanned depends on the *position* of the
    first violating coefficient, i.e. on coefficient values (`z = y + c·s1`, secret-dependent). This is
    an implementation choice: a constant-time norm check would scan all N (or accumulate branchlessly).
    **This is the leading a-priori candidate for an implementation residual, and it is pre-localised
    here.**
-2. **`challenge_bytes` — SampleInBall (`Poly.challenge`).** Its `do … while (b > i)` loop consumes a
+2. **`challenge_bytes` - SampleInBall (`Poly.challenge`).** Its `do … while (b > i)` loop consumes a
    variable number of SHAKE bytes. Its input is the commitment hash c̃ (message/commitment-driven), so
    a per-*key* dependence is not expected, but it is recorded and controlled.
 
-Everything else in the loop body — `decompose`, `makeHint`, `power2round`, the NTTs, the pointwise
-products, the packing — is **full-scan, fixed iteration count** (verified: `makeHint`/`decompose` loop
+Everything else in the loop body - `decompose`, `makeHint`, `power2round`, the NTTs, the pointwise
+products, the packing - is **full-scan, fixed iteration count** (verified: `makeHint`/`decompose` loop
 `0..N` with no early return; `Rounding` does fixed per-coefficient work). Per-coefficient
 branch-on-value in `Rounding.decompose`/`makeHint` executes a fixed number of times within a fixed
 profile; any timing it contributes is micro-architectural (branch prediction) and, if present in a
@@ -67,7 +67,7 @@ residual, is bounded and would itself be an implementation effect.
 
 **Consequence for the design.** Stratifying by `profile_key` holds the algorithm fixed. A surviving
 cross-key timing difference is then, by construction, attributable to (1), (2), or
-micro-architectural value-dependence — all implementation-level. This is why the identical-work-profile
+micro-architectural value-dependence - all implementation-level. This is why the identical-work-profile
 test is decisive, and why `norm_scan_coeffs` is pre-registered as the localization variable (Part D is
 effectively pre-loaded).
 
@@ -102,7 +102,7 @@ effectively pre-loaded).
 - **Coarse strata = exact `iterations`** (collapsing the stage multiset) for the Step-1 ANCOVA and as a
   fallback when few `profile_key` cells are well-populated.
 - The modal iteration count and its immediate neighbours are expected to dominate (ML-DSA-65's expected
-  repetition count is ≈ 4–5; the accept-on-iteration distribution is geometric-ish). Exact populations
+  repetition count is ≈ 4-5; the accept-on-iteration distribution is geometric-ish). Exact populations
   are reported after collection; strata are defined by the rule above, not by hand-picking.
 
 ---
@@ -112,7 +112,7 @@ effectively pre-loaded).
 Per key-pair × stratum, on per-invocation `time_ns` (after the same percentile crop as 1.84):
 
 1. **Welch's t** (unequal variance). TVLA convention.
-2. **Mann–Whitney U** → z (non-parametric, tail-robust).
+2. **Mann - Whitney U** → z (non-parametric, tail-robust).
 3. **Cliff's delta** δ (non-parametric effect size).
 4. **Bootstrap 95% CI** on the per-key mean-time gap (10,000 resamples), for magnitude.
 
@@ -135,7 +135,7 @@ A cross-key difference **within a stratum** counts as **present** only if **both
 - **|t| > 4.5** (TVLA), *and*
 - **|Cliff's δ| ≥ 0.147** (the conventional small-effect floor),
 
-**after Holm–Bonferroni correction across the full family of (key-pair × stratum) tests.** The Welch
+**after Holm - Bonferroni correction across the full family of (key-pair × stratum) tests.** The Welch
 t-threshold is applied to the Holm-adjusted significance; δ ≥ 0.147 must hold on the raw estimate.
 Requiring a non-negligible effect size guards against large-N t-inflation flagging an operationally
 meaningless difference.
@@ -164,44 +164,44 @@ A residual that does not replicate is **noise** → Outcome A.
 
 ---
 
-## 7. Outcome → decision mapping (fixed in advance — this is the reply to David)
+## 7. Outcome → decision mapping (fixed in advance - this is the reply to David)
 
 Follow the decision tree exactly; stop at the first terminal node reached.
 
-**Step 1 — coarse control (iterations).**
+**Step 1 - coarse control (iterations).**
 - Confirm `time_ns` rises monotonically with `iterations` (validates iterations as the dominant
-  driver). If it does not, halt and debug the join — do not interpret.
+  driver). If it does not, halt and debug the join - do not interpret.
 - If the ANCOVA `key` term is **absent** (§5) ⇒ **OUTCOME A (ALGORITHMIC)**. Terminal.
 - If **present** ⇒ ambiguous (could be reject-stage mix, still algorithmic). Go to Step 2.
 
-**Step 2 — fine control (identical `profile_key`).**
+**Step 2 - fine control (identical `profile_key`).**
 - If, in every well-populated stratum, no key-pair difference is **present** (§5) ⇒ **OUTCOME A
   (ALGORITHMIC).** The Step-1 signal was reject-stage mix. Terminal.
 - If a difference **is present** in one or more well-populated strata ⇒ candidate residual. Run Step 2b
   and Step 3.
 
-**Step 2b — localization (pre-registered).**
+**Step 2b - localization (pre-registered).**
 - If `norm_scan_coeffs` absorbs the surviving key term within strata ⇒ the residual is the
   **`checkNorm` early-exit**; carry this into Part D/`mitigation_candidate.md`.
 - If it does not ⇒ residual is elsewhere; Part D micro-timing enumerates sub-operations without a
   pre-committed location.
 
-**Step 3 — replication (§6).**
+**Step 3 - replication (§6).**
 - Passes ⇒ **OUTCOME B (IMPLEMENTATION RESIDUAL).** Engage David; report magnitude + localization.
 - Fails ⇒ **OUTCOME A**, reported as: signal seen in discovery did not replicate, treated as noise.
 
 ### The two replies, written in advance
 
-- **Outcome A — do not propose an implementation fix.** "The key-dependent signal is fully accounted
+- **Outcome A - do not propose an implementation fix.** "The key-dependent signal is fully accounted
   for by ML-DSA's rejection-sampling work: once the number of iterations and the reject-stage mix are
   held identical, no key-dependent timing difference survives (|t| and δ below threshold, or absent
   ANCOVA key term; statistics cited). This is the FIPS 204 rejection-count variance, key-dependent by
   construction, not a BC-specific defect. It persists on 1.85 (so it is not a stale-build artifact),
   which is expected since the ML-DSA path is byte-identical to 1.84. We characterised its magnitude and
   bound the residual at ≤ [[PENDING]] (upper bound, given host limits)."
-- **Outcome B — engage.** "A key-dependent timing difference survives identical-work-profile control
+- **Outcome B - engage.** "A key-dependent timing difference survives identical-work-profile control
   and replicates on fresh seeds (magnitude [[PENDING]], |t|=[[PENDING]], δ=[[PENDING]]). It localises to
-  [[PENDING — checkNorm early-exit unless data says otherwise]]. Concrete constant-time direction in
+  [[PENDING - checkNorm early-exit unless data says otherwise]]. Concrete constant-time direction in
   `mitigation_candidate.md`, with an explicit note on whether zero is reachable given the algorithmic
   floor beneath it."
 
@@ -215,7 +215,7 @@ it cannot be renegotiated post hoc:
 
 - Under key-interleaving over a shared corpus, host noise **inflates within-cell variance** but does
   **not** manufacture key-correlated differences. So **Outcome B is conservative** (existence/sign
-  credible; **magnitude not authoritative** — always stated as such).
+  credible; **magnitude not authoritative** - always stated as such).
 - **Outcome A is the false-negative-prone direction.** A null is reported as an **upper bound** on the
   residual with the achieved power, never as "zero", and calls for a pinned-host confirmation before
   being treated as final.

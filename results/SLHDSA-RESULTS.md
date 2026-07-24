@@ -1,7 +1,7 @@
-# SLH-DSA (sha2-128f) signing — preliminary leakage results (exploratory host)
+# SLH-DSA (sha2-128f) signing - preliminary leakage results (exploratory host)
 
 Measurements of SLH-DSA signing (BouncyCastle 1.84, pure Java, `sha2_128f`, deterministic) through the
-validated pipeline. **Headline: SLH-DSA signing is constant-time — no message-dependence detected**, as
+validated pipeline. **Headline: SLH-DSA signing is constant-time - no message-dependence detected**, as
 expected for a stateless hash-based signature with data-independent control flow. This completes the
 three-standard study.
 
@@ -14,7 +14,7 @@ three-standard study.
 
 Both runs are CLEAN: the fixed-message and random-message classes have statistically indistinguishable
 signing times (within-run difference ≲ 2.5%, not significant). Signing time does not depend on the
-message — the opposite of ML-DSA, and the expected result for a hash-based scheme whose signing
+message - the opposite of ML-DSA, and the expected result for a hash-based scheme whose signing
 performs a fixed number of hash evaluations regardless of the input.
 
 **Detection bound.** At N = 5,000, the smallest message-dependent difference the test would have flagged
@@ -22,11 +22,11 @@ at |t| > 4.5 is ≈ 0.34 ms (~0.9% of the ~38 ms signing time); none was observe
 
 ## A note on absolute-time drift (and why the design holds)
 
-The absolute mean signing time differed markedly between runs (~38 ms vs ~52 ms) — the Apple-Silicon
+The absolute mean signing time differed markedly between runs (~38 ms vs ~52 ms) - the Apple-Silicon
 host thermally throttles under sustained multi-minute load, and SLH-DSA signing is slow (~tens of ms).
 Yet both runs are CLEAN, because the two classes are measured **interleaved** under the same conditions
 within each run, so the drift is shared and cancels in the class comparison. This is exactly the
-robustness the randomized-interleaving design buys — and also why authoritative magnitude claims want a
+robustness the randomized-interleaving design buys - and also why authoritative magnitude claims want a
 thermally stable, pinned Linux/x86 host.
 
 ## Environment
@@ -41,11 +41,11 @@ thermally stable, pinned Linux/x86 host.
 | Standard | Mechanism | Result |
 |---|---|---|
 | ML-KEM-768 | lattice KEM, constant-time by design | **constant-time** (incl. FO rejection path) |
-| ML-DSA-65 | lattice signature, rejection sampling | **message-dependent** (~1.9×); **small key-dependence** (~1–1.5%) |
+| ML-DSA-65 | lattice signature, rejection sampling | **message-dependent** (~1.9×); **small key-dependence** (~1-1.5%) |
 | SLH-DSA sha2-128f | hash-based, data-independent control flow | **constant-time** (message-independent) |
 
 One validated detector, synthetic + real-cryptography controls, across all three NIST PQC standards on
-the JVM. ML-DSA is the outlier — variable-time by construction, and the only one with a (small) secret-
+the JVM. ML-DSA is the outlier - variable-time by construction, and the only one with a (small) secret-
 dependent channel.
 
 ## Caveats and next

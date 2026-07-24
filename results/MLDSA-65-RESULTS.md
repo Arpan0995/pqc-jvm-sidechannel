@@ -1,8 +1,8 @@
-# ML-DSA-65 signing — preliminary leakage results (exploratory host)
+# ML-DSA-65 signing - preliminary leakage results (exploratory host)
 
 First measurements of ML-DSA-65 signing (BouncyCastle 1.84, pure Java, deterministic signing) through
-the validated pipeline. **Headline: ML-DSA-65 signing time is strongly input-dependent** — the opposite
-of ML-KEM — **and it is constant-time when the input is held fixed.** Both facts are measured by the
+the validated pipeline. **Headline: ML-DSA-65 signing time is strongly input-dependent** - the opposite
+of ML-KEM - **and it is constant-time when the input is held fixed.** Both facts are measured by the
 same detector, which gives the paper its central contrast.
 
 ## Result
@@ -14,7 +14,7 @@ same detector, which gives the paper its central contrast.
 | sign fixed message (control) | 100,000 | 2.49 | 1.89 | 274,217 → 272,706 ns | 0.01 | **CLEAN** |
 
 - **Message-dependence is large and real.** A fixed message signs in ~273 µs; random messages average
-  ~517 µs — about **1.9×** — because signing time tracks the rejection-sampling iteration count, which
+  ~517 µs - about **1.9×** - because signing time tracks the rejection-sampling iteration count, which
   varies with the message. All three statistics agree, and the TVLA t **grows with N** (129 → 170 as N
   doubles), the signature of a genuine effect rather than noise.
 - **Fixed input ⇒ constant time.** With both classes signing the *same* message, the means are within
@@ -38,10 +38,10 @@ A LEAKY verdict here is the **expected, correct** result, not a vulnerability re
 variable-time by design, and the message is public, so message-dependent timing is not by itself a
 secret leak. The value of this measurement is threefold:
 
-1. **Detector validation on a real variable-time primitive** — the pipeline flags a known-variable-time
+1. **Detector validation on a real variable-time primitive** - the pipeline flags a known-variable-time
    operation by a huge margin, complementing the synthetic positive control.
 2. **The channel survives the JVM.** The rejection-count timing signal is clearly observable through
-   JIT/GC noise (t ≈ 130–170), so a managed runtime does not mask it — relevant to real-world
+   JIT/GC noise (t ≈ 130-170), so a managed runtime does not mask it - relevant to real-world
    exploitability.
 3. **Setup for the exploitability question (RQ-D4).** Whether signing time depends on the *secret key*
    (fixed-key vs random-key), and whether the iteration-count channel can be tied to key material, is
@@ -54,10 +54,10 @@ secret leak. The value of this measurement is threefold:
 - Deterministic signing (FIPS 204 rnd = 0), verified deterministic by test. Single key pair (seed
   0x0D5A65). ML-DSA-65 signature length 3309 bytes; 32-byte messages.
 
-## RQ-D4 — key dependence (the exploitability question)
+## RQ-D4 - key dependence (the exploitability question)
 
 Message-dependence leaks a *public* value. The security-relevant question is whether signing time
-depends on the *secret key*. **Finding: yes — a small but real key-dependent timing difference exists.**
+depends on the *secret key*. **Finding: yes - a small but real key-dependent timing difference exists.**
 This was the expected-to-be-null test, so it was checked three independent ways before concluding.
 
 **(1) Two keys, random messages, deterministic (`mldsa-sign-keydep`).**
@@ -91,7 +91,7 @@ position (so not a position artifact), and reproducible (the same ordering appea
 
 **Conclusion and interpretation.** ML-DSA-65 signing time is **key-dependent**, because per-key average
 rejection rates differ slightly (the rejection rate is designed to be *approximately*, not exactly,
-key-independent). The effect is **small (~1–1.5%)** — far below the message-dependence (~90% / 1.9×) —
+key-independent). The effect is **small (~1-1.5%)** - far below the message-dependence (~90% / 1.9×) -
 but real and measurable through JVM noise, which is the exploitability-relevant point: the secret does
 influence timing. This does **not** demonstrate key recovery; it establishes that the key→timing
 channel is nonzero, motivating constant-time hardening and further study (many keys; can the channel be

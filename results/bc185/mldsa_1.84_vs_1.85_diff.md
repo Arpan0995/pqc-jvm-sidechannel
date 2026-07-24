@@ -8,10 +8,10 @@ released artifacts, and it is evidence for the thread regardless of what the tim
 **Headline.** Both halves of David's message are correct, and they resolve in different directions:
 
 1. **ML-DSA itself was not touched.** Every class on the ML-DSA-65 signing path is **byte-identical**
-   between 1.84 and 1.85 — including `MLDSAEngine` (which contains the entire rejection loop),
+   between 1.84 and 1.85 - including `MLDSAEngine` (which contains the entire rejection loop),
    `MLDSASigner` (the API this study calls), and the whole polynomial/NTT/packing layer.
-2. **But "something else in the API" did change, and it is on the hot path.** `KeccakDigest` — reached
-   from ML-DSA by inheritance (`SHAKEDigest extends KeccakDigest`) — gained a **lazy squeeze-packing**
+2. **But "something else in the API" did change, and it is on the hot path.** `KeccakDigest` - reached
+   from ML-DSA by inheritance (`SHAKEDigest extends KeccakDigest`) - gained a **lazy squeeze-packing**
    optimisation. SHAKE dominates ML-DSA signing cost, so this is the one 1.85 change that can move
    ML-DSA signing *time*. It is output-neutral by construction, and confirmed so empirically below.
 
@@ -45,11 +45,11 @@ both versions. No additional artifact needs pinning.
 
 ## 2. ML-DSA package: per-class result
 
-`org/bouncycastle/pqc/crypto/mldsa/*` — bytecode SHA-256 comparison:
+`org/bouncycastle/pqc/crypto/mldsa/*` - bytecode SHA-256 comparison:
 
 | Class | Status | On the signing path we call? |
 |---|---|---|
-| **`MLDSAEngine`** (rejection loop, ExpandMask, norm checks, hints) | **IDENTICAL** | yes — the core |
+| **`MLDSAEngine`** (rejection loop, ExpandMask, norm checks, hints) | **IDENTICAL** | yes - the core |
 | **`MLDSASigner`** (the low-level API this study calls) | **IDENTICAL** | yes |
 | **`MLDSAPrivateKeyParameters`** (secret-key decode) | **IDENTICAL** | yes |
 | **`MLDSAKeyPairGenerator`** / `MLDSAKeyGenerationParameters` | **IDENTICAL** | yes (keygen) |
@@ -57,14 +57,14 @@ both versions. No additional artifact needs pinning.
 | `Ntt`, `Reduce`, `Rounding`, `Packing` | **IDENTICAL** | yes |
 | `Symmetric`, `Symmetric$ShakeSymmetric` | **IDENTICAL** | yes |
 | `MLDSAKeyParameters`, `MLDSAParameters` | **IDENTICAL** | yes |
-| `HashMLDSASigner` | **DIFFERS** (4286 B → 5271 B) | **no** — pre-hash/HashML-DSA variant |
-| `MLDSAPublicKeyParameters` | **DIFFERS** (1265 B → 1481 B) | **no** — decode-side validation |
+| `HashMLDSASigner` | **DIFFERS** (4286 B → 5271 B) | **no** - pre-hash/HashML-DSA variant |
+| `MLDSAPublicKeyParameters` | **DIFFERS** (1265 B → 1481 B) | **no** - decode-side validation |
 
 **17 of 19 classes are byte-identical, and the two that differ are both off the secret-dependent
 signing path.** Nothing in the rejection loop, the norm/hint checks, the secret-key decode, or the
 NTT/polynomial arithmetic changed by a single byte.
 
-### 2.1 `MLDSAPublicKeyParameters` — added length validation (decode-side)
+### 2.1 `MLDSAPublicKeyParameters` - added length validation (decode-side)
 
 The public API surface is unchanged (`javap -p` identical); only a constructor body changed:
 
@@ -88,11 +88,11 @@ The public API surface is unchanged (`javap -p` identical); only a constructor b
  }
 ```
 
-A strict exact-length check replaces a weak non-empty check — recognisably review-driven input
+A strict exact-length check replaces a weak non-empty check - recognisably review-driven input
 hardening (consistent with the Mythos review David mentions). It runs only when **decoding a public key
 from bytes**, never during signing, and it does not change any key *value*.
 
-### 2.2 `HashMLDSASigner` — new external-hash API surface
+### 2.2 `HashMLDSASigner` - new external-hash API surface
 
 1.85 **adds** methods (nothing removed): `generateSignature(byte[] hash)`, `verifySignature(byte[] hash,
 byte[] signature)`, `checkHashLength`, `generateSignatureFromMsgDigest`, `buildExternalMsgDigest`; plus
@@ -104,7 +104,7 @@ byte-identical. So this change cannot affect our measurements.
 
 ---
 
-## 3. Dependency closure — where "something else in the API" actually lives
+## 3. Dependency closure - where "something else in the API" actually lives
 
 Byte-identical ML-DSA classes are only conclusive if what they *call* is also unchanged. The 1-hop
 reference closure of the `mldsa` package (extracted from its constant pools) is 14 BC classes:
@@ -117,8 +117,8 @@ reference closure of the `mldsa` package (extracted from its constant pools) is 
 | `crypto/params/AsymmetricKeyParameter`, `ParametersWithContext`, `ParametersWithRandom` | IDENTICAL |
 | `pqc/crypto/DigestUtils` | IDENTICAL |
 | `util/Arrays` | IDENTICAL |
-| `asn1/ASN1ObjectIdentifier` | DIFFERS — not on the signing hot path |
-| `util/Exceptions` | DIFFERS — not on the signing hot path |
+| `asn1/ASN1ObjectIdentifier` | DIFFERS - not on the signing hot path |
+| `util/Exceptions` | DIFFERS - not on the signing hot path |
 
 **The constant-pool closure is not sufficient**, because `SHAKEDigest` reaches its superclass by
 *inheritance*, which does not appear as a constant-pool reference:
@@ -130,7 +130,7 @@ MLDSAEngine / Symmetric$ShakeSymmetric  →  SHAKEDigest (IDENTICAL)  →  exten
 `KeccakDigest` is therefore **on the ML-DSA signing hot path**, and it changed. This is the finding
 that matters, and it is precisely the case David flagged.
 
-### 3.1 `KeccakDigest` — lazy squeeze packing (the one hot-path change)
+### 3.1 `KeccakDigest` - lazy squeeze packing (the one hot-path change)
 
 1.85 adds a private field `queuePacked` and a private method `ensureQueuePacked(int)`. The semantic
 change:
@@ -141,7 +141,7 @@ change:
   then calls `ensureQueuePacked(srcOff + nBytes)` to materialise **only the lanes it actually consumes**,
   picking up where the previous call left off.
 
-BC's own comment states the intent — consumers that squeeze less than a full rate block "avoid packing
+BC's own comment states the intent - consumers that squeeze less than a full rate block "avoid packing
 the discarded tail of the block", naming SHA3-256, SLH-DSA tweakable hashes, and small cSHAKE/KMAC
 outputs. `getEncodedState` force-materialises before serialising so saved digests round-trip.
 
@@ -150,17 +150,17 @@ outputs. `getEncodedState` force-materialises before serialising so saved digest
 - It is a **performance optimisation on ML-DSA's dominant cost**. Every ML-DSA `ExpandA`, `ExpandMask`,
   `SampleInBall`, and `H`/`mu` call goes through SHAKE squeezing. So **absolute** ML-DSA signing times
   may legitimately differ between 1.84 and 1.85.
-- It is **output-neutral** — the packed bytes are identical to eager packing (the state is stable during
+- It is **output-neutral** - the packed bytes are identical to eager packing (the state is stable during
   squeeze). BC asserts this; §4 confirms it empirically.
 - It is **length-dependent, not value-dependent**. The work saved is a function of *how many bytes the
-  caller requests*, a public/structural quantity — not of any secret coefficient value. On its face it
+  caller requests*, a public/structural quantity - not of any secret coefficient value. On its face it
   is therefore not a new secret-dependent channel.
 - **One interaction worth flagging, not yet claimed.** `Poly.challenge` (SampleInBall) consumes SHAKE
   bytes in a `do { ... } while (b > i)` rejection loop, so the *number of squeezed bytes* is
   value-dependent. Lazy packing makes per-squeeze cost depend on how much is drawn. This is a
   mechanism by which 1.85 could in principle change the *shape* of value-dependent timing rather than
   just its offset. SampleInBall's input is the commitment hash c̃ (a hash output, and message-driven),
-  so there is no evident route from the signing key to this loop — but it is recorded here as a
+  so there is no evident route from the signing key to this loop - but it is recorded here as a
   hypothesis to keep in view, **not** as a finding.
 
 `Pack` also differs, but only by an **added** `shortToLittleEndian(short[])` overload; the
@@ -174,14 +174,14 @@ identical. So `KeccakDigest` is the sole material hot-path change in the closure
 The source analysis predicts: identical keygen, identical signatures, possibly different timing. Run
 against both jars with **identical harness bytecode and the identical JDK** (only the jar path changes):
 
-- **Gate B1a — PASS.** For all 8 pinned seeds (the six-key probe seeds `100–105`, plus the dudect
+- **Gate B1a - PASS.** For all 8 pinned seeds (the six-key probe seeds `100-105`, plus the dudect
   key-dependence seeds `0x0D5A65`/`0x0D5A66`), the ML-DSA-65 **public key is byte-identical** across
   1.84 and 1.85 (SHA-256 match). Private keys match too. Consistent with `MLDSAKeyPairGenerator` being
   byte-identical. **The two versions' keys are the same keys**, so all downstream comparisons are valid.
-- **Gate B1b — PASS.** Deterministic signing is engaged (`det=true` 8/8: same `(key, message)` signs
+- **Gate B1b - PASS.** Deterministic signing is engaged (`det=true` 8/8: same `(key, message)` signs
   byte-identically twice), and every signature verifies (`verify=true` 8/8).
 - **Cross-version signature identity.** Signature SHA-256 matches across 1.84 and 1.85 for all 8 seeds
-  — a direct empirical confirmation that the Keccak lazy-packing change is output-neutral on the ML-DSA
+ - a direct empirical confirmation that the Keccak lazy-packing change is output-neutral on the ML-DSA
   path, exactly as its comment claims.
 
 A runtime discriminator was used to prove the intended jar actually loaded in each run (rather than
@@ -209,13 +209,13 @@ are the same bytes.
 `KeccakDigest`'s lazy squeeze packing, whose saved work is a function of requested output length
 (public), not of secret values.
 
-**Is David's expectation confirmed?** Yes for ML-DSA proper — stronger than "not touched much": *not
+**Is David's expectation confirmed?** Yes for ML-DSA proper - stronger than "not touched much": *not
 touched at all, byte-for-byte*. And his second point is also vindicated: 1.85 *did* change something
 else in the API that reaches ML-DSA (`KeccakDigest`), which is a real candidate for shifting absolute
 timings even though ML-DSA's own code is unchanged.
 
 **What does this imply for Part B?** A key-dependent signal, if it persists, **cannot** be attributed to
-a 1.85 ML-DSA change — the mechanism is implemented by identical bytecode. If the *magnitude* moves,
+a 1.85 ML-DSA change - the mechanism is implemented by identical bytecode. If the *magnitude* moves,
 `KeccakDigest`'s lazy packing is the sole identified candidate on the hot path. This diff does **not**
 by itself establish whether the channel is algorithmic or implementation-level; that is Part C.
 
@@ -223,5 +223,5 @@ by itself establish whether the channel is algorithmic or implementation-level; 
 
 *Reproduce:* fetch the four artifacts above, verify SHA-256, extract
 `org/bouncycastle/pqc/crypto/mldsa/*` from both binary jars, compare per-class SHA-256, and `diff` the
-corresponding `-sources.jar` trees. `KeccakDigest` must be compared explicitly — it is reached by
+corresponding `-sources.jar` trees. `KeccakDigest` must be compared explicitly - it is reached by
 inheritance and does not appear in the ML-DSA constant-pool closure.
