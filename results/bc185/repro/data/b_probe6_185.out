@@ -1,0 +1,7 @@
+Per-key mean ML-DSA-65 signing time over 25000 shared messages:
+  key seed 100 : mean 368,652 ns   (+0.00% vs key0)
+  key seed 101 : mean 366,891 ns   (-0.48% vs key0)
+  key seed 102 : mean 366,504 ns   (-0.58% vs key0)
+  key seed 103 : mean 366,088 ns   (-0.70% vs key0)
+  key seed 104 : mean 370,367 ns   (+0.47% vs key0)
+  key seed 105 : mean 369,247 ns   (+0.16% vs key0)

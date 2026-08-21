@@ -21,3 +21,11 @@ replay_pid*
 # Raw measurement data is committed selectively under results/ only.
 # Scratch runs stay out of the repo:
 scratch/
+
+# Paper-3 timing repro (results/bc185/repro): build outputs and extracted
+# upstream BouncyCastle source stay out of the repo; raw CSVs are committed
+# gzipped under data/*.csv.gz (gunzip before re-running the analysis).
+results/bc185/repro/inst-src/
+results/bc185/repro/inst-classes/
+results/bc185/repro/classes/
+results/bc185/repro/data/*.csv

@@ -1,0 +1,29 @@
+=== (3) PURE-STRATUM MAGNITUDE on the steadier host ===
+  discovery: per-key pure-stratum mean 135477..135705 ns  spread=228 ns (0.168%)
+  rerun (alloc-shuffled): per-key pure-stratum mean 118055..118304 ns  spread=249 ns (0.211%)
+
+=== (4) PLACEMENT / STABILITY — THE DECIDER ===
+within-run stability (first half vs second half of messages):
+
+--- discovery half-split  (1stHalf vs 2ndHalf; 20 keys) ---
+  Spearman rank corr of per-key pure-stratum means = +0.720
+  Pearson corr of per-key pure-stratum means        = +0.730
+  slowest-3 1stHalf: [5, 4, 1]   slowest-3 2ndHalf: [4, 18, 5]
+  fastest-3 1stHalf: [12, 10, 7]   fastest-3 2ndHalf: [7, 10, 2]
+
+--- discovery vs alloc-shuffled rerun  (disc vs rerun; 20 keys) ---
+  Spearman rank corr of per-key pure-stratum means = -0.036
+  Pearson corr of per-key pure-stratum means        = +0.011
+  slowest-3 disc: [4, 5, 18]   slowest-3 rerun: [9, 12, 4]
+  fastest-3 disc: [7, 10, 12]   fastest-3 rerun: [6, 16, 18]
+
+=== (5) REPLICATION on fresh keys 200-219, corpus 31337 ===
+  replication: per-key pure-stratum mean 117834..118450 ns  spread=616 ns (0.523%)
+
+--- replication half-split  (1stHalf vs 2ndHalf; 20 keys) ---
+  Spearman rank corr of per-key pure-stratum means = +0.430
+  Pearson corr of per-key pure-stratum means        = +0.352
+  slowest-3 1stHalf: [16, 14, 7]   slowest-3 2ndHalf: [11, 2, 12]
+  fastest-3 1stHalf: [17, 6, 3]   fastest-3 2ndHalf: [1, 19, 17]
+
+[interpretation] low/unstable correlation (~Air's 0.116) or ranking that moves with alloc order => placement artifact => OUTCOME A. high correlation that survives alloc-shuffle AND replicates => candidate value channel => OUTCOME B.

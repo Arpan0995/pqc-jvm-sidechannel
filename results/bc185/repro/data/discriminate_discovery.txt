@@ -1,0 +1,107 @@
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:186: RuntimeWarning: divide by zero encountered in matmul
+  resid = y - X@beta
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:186: RuntimeWarning: overflow encountered in matmul
+  resid = y - X@beta
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:186: RuntimeWarning: invalid value encountered in matmul
+  resid = y - X@beta
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:188: RuntimeWarning: divide by zero encountered in matmul
+  sigma2 = (resid@resid)/dof
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:188: RuntimeWarning: overflow encountered in matmul
+  sigma2 = (resid@resid)/dof
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:188: RuntimeWarning: invalid value encountered in matmul
+  sigma2 = (resid@resid)/dof
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:189: RuntimeWarning: divide by zero encountered in matmul
+  XtX_inv = np.linalg.inv(X.T@X)
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:189: RuntimeWarning: overflow encountered in matmul
+  XtX_inv = np.linalg.inv(X.T@X)
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:189: RuntimeWarning: invalid value encountered in matmul
+  XtX_inv = np.linalg.inv(X.T@X)
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:192: RuntimeWarning: divide by zero encountered in matmul
+  sst = ((y-y.mean())**2).sum(); sse = (resid@resid); r2_full = 1-sse/sst
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:192: RuntimeWarning: overflow encountered in matmul
+  sst = ((y-y.mean())**2).sum(); sse = (resid@resid); r2_full = 1-sse/sst
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:192: RuntimeWarning: invalid value encountered in matmul
+  sst = ((y-y.mean())**2).sum(); sse = (resid@resid); r2_full = 1-sse/sst
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:196: RuntimeWarning: divide by zero encountered in matmul
+  sser = ((y-Xr@br)**2).sum(); r2_red = 1-sser/sst
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:196: RuntimeWarning: overflow encountered in matmul
+  sser = ((y-Xr@br)**2).sum(); r2_red = 1-sser/sst
+/Users/arpansharma/Desktop/Claude-Projects/pqc-jvm-sidechannel/results/bc185/repro/analysis/discriminate.py:196: RuntimeWarning: invalid value encountered in matmul
+  sser = ((y-Xr@br)**2).sum(); r2_red = 1-sser/sst
+[discovery] joined rows: 1200000  (work rows 1200000, timing rows unmatched: 0)
+
+=== STEP 1a: time vs iterations (dominant driver check) ===
+  iters= 1  n= 234014  median=    134792 ns
+  iters= 2  n= 188379  median=    193292 ns
+  iters= 3  n= 151147  median=    249416 ns
+  iters= 4  n= 122192  median=    307292 ns
+  iters= 5  n=  98099  median=    364459 ns
+  iters= 6  n=  79244  median=    421708 ns
+  iters= 7  n=  63758  median=    479083 ns
+  iters= 8  n=  51240  median=    536250 ns
+  iters= 9  n=  41088  median=    593667 ns
+  iters=10  n=  33407  median=    651125 ns
+  iters=11  n=  26731  median=    707875 ns
+  iters=12  n=  21278  median=    765584 ns
+  iters=13  n=  17468  median=    822584 ns
+  iters=14  n=  14190  median=    879917 ns
+  iters=15  n=  11123  median=    937500 ns
+  iters=16  n=   9088  median=    995167 ns
+  iters=17  n=   7256  median=   1051375 ns
+  iters=18  n=   5944  median=   1109167 ns
+  iters=19  n=   4706  median=   1166583 ns
+  iters=20  n=   3764  median=   1223646 ns
+  iters=21  n=   3078  median=   1282188 ns
+  iters=22  n=   2532  median=   1338875 ns
+  iters=23  n=   1994  median=   1396562 ns
+  iters=24  n=   1573  median=   1453292 ns
+  iters=25  n=   1350  median=   1510000 ns
+  iters=26  n=   1047  median=   1567167 ns
+  iters=27  n=    832  median=   1626312 ns
+  iters=28  n=    653  median=   1684708 ns
+  iters=29  n=    574  median=   1741438 ns
+  iters=30  n=    451  median=   1798500 ns
+  iters=31  n=    362  median=   1855979 ns
+  iters=32  n=    262  median=   1914730 ns
+  iters=33  n=    214  median=   1968646 ns
+  iters=34  n=    184  median=   2026938 ns
+  iters=35  n=    135  median=   2081042 ns
+  iters=36  n=    127  median=   2138167 ns
+  iters=37  n=    100  median=   2204479 ns
+  iters=38  n=     72  median=   2252980 ns
+  iters=39  n=     64  median=   2323750 ns
+  iters=40  n=     54  median=   2375812 ns
+  iters=41  n=     51  median=   2429125 ns
+  Pearson r(iterations, time) = 0.9714   monotone medians: True
+
+=== STEP 1b: ANCOVA  time ~ iterations + C(key) ===
+  n=1200000  full R^2=0.94353  (iterations-only R^2=0.94353)
+  iterations slope = 57895.0 ns/iter  (se 12.93)
+  KEY block partial F(19,1199979) = 0.93   extra variance explained by key = 0.0001%
+  -> key term negligible/absent by pre-registered bar (>=1% residual variance)
+
+=== STEP 2: within identical profile_key, cross-key timing ===
+  well-populated strata (>= 12 keys with >= 800 sigs): 16
+  cross-key tests (key-pair x stratum): 2986
+  top 8 |t| cross-key tests (profile_key, keyA,keyB, t, delta, mean_gap_ns, holm_p):
+    6:2-3-0-0-1    k17-k12  t=   -5.16  d=+0.0921  gap=    -1882ns  holm_p=7.47e-04
+    1:0-0-0-0-1    k 7-k 4  t=   -4.77  d=+0.0447  gap=     -228ns  holm_p=5.37e-03
+    2:0-1-0-0-1    k 9-k 0  t=    4.76  d=-0.0575  gap=     +485ns  holm_p=5.79e-03
+    1:0-0-0-0-1    k10-k 4  t=   -4.73  d=+0.0427  gap=     -226ns  holm_p=6.62e-03
+    4:1-2-0-0-1    k 3-k19  t=    4.59  d=-0.0679  gap=     +875ns  holm_p=1.31e-02
+    6:2-3-0-0-1    k 6-k12  t=   -4.59  d=+0.0612  gap=    -1663ns  holm_p=1.33e-02
+    4:1-2-0-0-1    k15-k19  t=    4.50  d=-0.0571  gap=     +900ns  holm_p=2.04e-02
+    6:2-3-0-0-1    k12-k 2  t=    4.50  d=-0.0603  gap=    +1644ns  holm_p=2.07e-02
+
+  PRE-REGISTERED 'present' (holm_p<0.05 AND |t|>4.5 AND |delta|>=0.147): 0 / 2986
+  max |Cliff's delta| across all cross-key tests = 0.0921  (below the 0.147 floor)
+
+=== PURE STRATUM 1:0-0-0-0-1 (accept on iter 1; norm_scan constant = 4352) ===
+  n=234014  norm_scan values present: [4352]  (constant => checkNorm channel contributes 0 here)
+  per-key mean time: 135477..135705 ns  spread=228 ns (0.168%)
+  extreme pair k4 vs k7: t=4.77  Cliff d=-0.0447  -> below threshold
+
+=== STEP 2b: within-stratum localization (norm_scan_coeffs, challenge_bytes) ===
+  2:0-1-0-0-1      n=  99021  r(scan,time)=+0.0056  time/scan-coeff=+0.424 ns  per-key scan spread=19 coeffs => checkNorm timing spread ~ +8.2 ns
+
+[done]

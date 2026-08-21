@@ -1,0 +1,16 @@
+=== pqc-jvm-sidechannel run ===
+  jdk    : 21.0.9 (Microsoft) OpenJDK 64-Bit Server VM
+  os     : Mac OS X 27.0 (aarch64)
+  cpu    : 10 logical processors
+  heap   : max 1024 MiB
+  jvmArgs: -Xms1g -Xmx1g
+  nanoTime calibration: back-to-back overhead ~42 ns, min non-zero delta 41 ns (n=2000000)
+  target : mldsa-sign-keydep  (n=100000)
+
+Leakage report: ml-dsa-65:sign-keyA-vs-keyB-random-message-deterministic
+  samples: class0=50872  class1=49128
+  dudect cropped-t : max|t|=8.088  (crop p=0.46411, threshold=236875 ns, crops=101)
+  TVLA Welch-t     : t=-3.095  (mean0=337458.1 ns, mean1=342148.7 ns, df=99626)
+  Mann-Whitney U   : z=-2.167  (p=3.026e-02)
+  effect size      : Cohen's d=-0.0196
+  VERDICT          : MARGINAL — dudect grazed threshold but uncorroborated (TVLA t=-3.10, d=-0.0196); confirm via repeated runs (threshold |t|>4.5)
