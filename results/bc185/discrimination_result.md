@@ -110,3 +110,34 @@ is the per-key SAMPLE of a key-independent iteration count multiplied by the
 per-iteration cost. Combined with Outcome A (no residual after conditioning),
 there is no key-dependent timing channel of ANY kind: neither algorithmic nor
 implementation. This sharpens, and does not change, the Outcome A decision.
+
+## Addendum 2 (2026-08-22): the two-key dudect "leak" is the harness, not the key
+
+The original signal was the Part-B `mldsa-sign-keydep` test (key A = seed
+0x0D5A65 vs key B = 0x0D5A66, random messages, deterministic). At n=250k it
+reports LEAKY: TVLA Welch t=-4.884, mean0=338,183 ns vs mean1=342,888 ns
+(1.4%), Cohen's d=-0.0196 (`b_keydep_185_250k.out`). But the two keys'
+iteration distributions are identical: `work_keydep_pair.csv.gz` (WorkProfile,
+2 keys x 60,000 msgs) gives mean iterations 5.1461 vs 5.1457 (SE 0.019 each).
+So the 1.4% is NOT iteration sampling. Controls (`harness_src/KeyDepControl.java`,
+same pipeline as Runner with chosen seeds, n=250k each):
+
+| run | class0 / class1 | TVLA t | Mann-Whitney z | dudect max|t| | Cohen d | class diff | verdict |
+|---|---|---|---|---|---|---|---|
+| A vs A (same key, 2 instances) | 874085 / 874085 | +4.261 | +14.10 | 22.58 | 0.0170 | 279,960 vs 276,810 ns (1.1%) | LEAKY |
+| B vs A (swapped order)          | 874086 / 874085 | +1.452 |  +4.45 | 11.60 | 0.0058 | 377,278 vs 375,640 ns (0.4%) | MARGINAL |
+| A vs B (repeat)                 | 874085 / 874086 | +1.800 |  -4.96 | 14.36 | 0.0072 | 368,967 vs 367,101 ns (0.5%) | LEAKY (dudect) |
+
+(`b_keydep_ctl_AvsA_185.out`, `b_keydep_ctl_BvsA_185.out`, `b_keydep_ctl_AvsB_185.out`.)
+
+Reading: with the SAME key in both classes the harness reports leakage as
+confidently as with two different keys; the class difference is 0.4-1.1% with
+a sign that changes from run to run. It is a run-specific class asymmetry of
+the two-instance harness (instance placement / JIT on the JVM), amplified into
+a verdict by n=250k per class and dudect's max-over-crops statistic. All effect
+sizes are far below the pre-registered 0.147 floor. Absolute levels vary widely
+across runs (280-377 us): within-run class comparison is what each verdict
+uses. CONCLUSION: the apparent two-key signal is not about the key; consistent
+with, and explained by, the 20-key within-profile null (Outcome A) and the
+placement-control behaviour. A same-key negative control is mandatory before
+reading any two-key first-order verdict on a managed runtime.

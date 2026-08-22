@@ -1,0 +1,17 @@
+=== keydep control ===
+  jdk    : 21.0.9 (Microsoft) OpenJDK 64-Bit Server VM
+  os     : Mac OS X 27.0 (aarch64)
+  cpu    : 10 logical processors
+  heap   : max 1024 MiB
+  jvmArgs: -Xms1g -Xmx1g
+  nanoTime calibration: back-to-back overhead ~43 ns, min non-zero delta 41 ns (n=2000000)
+  target : keydep-control seedA=874085 seedB=874086 (n=250000)
+
+Leakage report: ml-dsa-65:sign-keyA-vs-keyB-random-message-deterministic
+  samples: class0=127196  class1=122804
+  dudect cropped-t : max|t|=14.363  (crop p=0.81054, threshold=533334 ns, crops=101)
+  TVLA Welch-t     : t=1.800  (mean0=368966.5 ns, mean1=367101.4 ns, df=249869)
+  Mann-Whitney U   : z=-4.964  (p=6.913e-07)
+  effect size      : Cohen's d=0.0072
+  VERDICT          : LEAKY — dudect flag corroborated by first-order test (threshold |t|>4.5)
+KEYDEP-CONTROLS-DONE
