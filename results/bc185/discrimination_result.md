@@ -81,3 +81,32 @@ rejection-sampling iteration count. Holding the work identical leaves no
 implementation channel above the noise floor. This is the responsible-
 disclosure conclusion communicated to Bouncy Castle: alert but not alarmed, and
 correct.
+
+## Addendum (2026-08-22): is the per-key iteration spread itself a key effect?
+
+Added after the pre-registered tree resolved (exploratory). ML-DSA's rejection
+sampling is designed so the acceptance probability of the z-check is
+independent of the secret (y is uniform on a range exactly beta wider than the
+acceptance window, and ||c s1||_inf <= beta always), and the r0-check is argued
+independent heuristically. Under that design property, per-key mean iteration
+counts over a finite corpus differ only by sampling noise. Tested directly with
+`repro/analysis/iteration_anova.sh` (one-way ANOVA, iterations ~ key):
+
+| Campaign | keys x msgs | grand mean | per-key spread | spread in SE | F(19, 1,199,980) | p | eta^2 |
+|---|---|---|---|---|---|---|---|
+| discovery   | 20 x 60,000 | 5.1340 | 5.0948..5.1840 (1.74%) | 4.73 | 1.203 | 0.244 | 0.0019% |
+| replication | 20 x 60,000 | 5.1420 | 5.1090..5.1753 (1.29%) | 3.52 | 1.144 | 0.298 | 0.0018% |
+
+5% critical F = 1.587; expected max-min of 20 noise means ~ 3.7 SE
+(SE of a per-key mean = 4.61/sqrt(60000) = 0.019). **Not significant in either
+campaign**: the per-key iteration spread is consistent with all keys sharing
+one iteration distribution, i.e. the design property observed empirically at
+1.2M-signature scale. The measured grand mean 5.134 matches the design's
+expected repetition count (~5.1) for ML-DSA-65.
+
+Consequence for interpretation: the ~1.35% per-key mean signing-time spread
+(345,211..349,898 ns; corr(per-key mean iterations, per-key mean time) = 0.958)
+is the per-key SAMPLE of a key-independent iteration count multiplied by the
+per-iteration cost. Combined with Outcome A (no residual after conditioning),
+there is no key-dependent timing channel of ANY kind: neither algorithmic nor
+implementation. This sharpens, and does not change, the Outcome A decision.
