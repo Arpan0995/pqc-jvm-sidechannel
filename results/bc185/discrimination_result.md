@@ -141,3 +141,41 @@ uses. CONCLUSION: the apparent two-key signal is not about the key; consistent
 with, and explained by, the 20-key within-profile null (Outcome A) and the
 placement-control behaviour. A same-key negative control is mandatory before
 reading any two-key first-order verdict on a managed runtime.
+
+## Addendum 3 (2026-08-24): rank persistence and noise floor of the pure-stratum residual
+
+Added after the decision tree resolved; exploratory. Script: `repro/analysis/rank_persistence.py` (run from `repro/data/`; output `repro/data/rank_persistence.txt`, `rank_persistence.json`). Same statistic as Table 1's pure-stratum row (per-key mean of own 98th-percentile-cropped times).
+
+```
+pure stratum 1:0-0-0-0-1: 234014 signatures per campaign, 20 keys; per-key crop at own 98% percentile (numpy.quantile)
+per-key spread: discovery 448 ns (0.351%), placement control 283 ns (0.247%)
+per-key SE of the cropped mean: 77 ns; expected span of 20 pure-noise means (3.735 SE): 289 ns
+rank persistence across campaigns (n=20): Spearman rho=+0.489, Kendall tau=+0.337  (two-sided 5% critical |rho|~0.447, |tau|~0.33)
+rank reproducibility within discovery: even/odd messages rho=+0.159, first/second half rho=+0.215; within placement control even/odd rho=+0.598
+one-way ANOVA of cropped pure-stratum time by key: discovery F(19,229305)=2.71, eta^2=0.0225%; placement F=4.32, eta^2=0.0358%
+SampleInBall challenge bytes: per-key spread 0.09 bytes; slope +16.9 ns/byte -> 1.6 ns attributable; Spearman(bytes,time) discovery +0.155
+
+per-key cropped mean (ns): key  discovery  placement  rankD rankR
+   0     127763     114757   14    7
+   1     127581     114661    4    1
+   2     127562     114778    3    9
+   3     127704     114697   13    3
+   4     127922     114826   19   15
+   5     127820     114865   16   17
+   6     127890     114807   18   13
+   7     127614     114796    6   12
+   8     127696     114695   12    2
+   9     127655     114850   10   16
+  10     127652     114705    8    4
+  11     127666     114789   11   10
+  12     127545     114597    2    0
+  13     127528     114817    1   14
+  14     127643     114748    7    6
+  15     127654     114793    9   11
+  16     127801     114866   15   18
+  17     127880     114881   17   19
+  18     127475     114758    0    8
+  19     127582     114732    5    5
+```
+
+Reading: the placement-control spread (283 ns) equals the expected span of twenty pure-noise means (3.735 x 77 ns = 289 ns); discovery (448 ns) sits 1.5x above it. Each run carries small key-locked offsets beyond sampling noise (ANOVA F = 2.7 / 4.3, eta^2 <= 0.04%), as a signer instance parked in one place for a run would produce. Across re-allocation the per-key ranking reproduces only marginally (rho = 0.49, tau = 0.34, at the 5% edge for n = 20) and within the discovery run it barely reproduces (split-half rho 0.16-0.22). SampleInBall bytes account for 1.6 ns. The residual behaves as run-specific placement/drift at the level of a few standard errors; any key-linked component is bounded at a small fraction of 0.35% and is not excluded at the ~0.1% scale. No pre-registered threshold is approached.
