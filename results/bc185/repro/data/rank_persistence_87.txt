@@ -1,0 +1,29 @@
+pure stratum 1:0-0-0-0-1: 307194 signatures per campaign, 20 keys; per-key crop at own 98% percentile (numpy.quantile)
+per-key spread: discovery 331 ns (0.191%), placement control 404 ns (0.233%)
+per-key SE of the cropped mean: 57 ns; expected span of 20 pure-noise means (3.735 SE): 215 ns
+rank persistence across campaigns (n=20): Spearman rho=+0.483, Kendall tau=+0.326  (two-sided 5% critical |rho|~0.447, |tau|~0.33)
+rank reproducibility within discovery: even/odd messages rho=+0.164, first/second half rho=+0.180; within placement control even/odd rho=+0.540
+one-way ANOVA of cropped pure-stratum time by key: discovery F(19,301025)=2.37, eta^2=0.0149%; placement F=3.46, eta^2=0.0218%
+SampleInBall challenge bytes: per-key spread 0.12 bytes; slope +8.9 ns/byte -> 1.0 ns attributable; Spearman(bytes,time) discovery +0.152
+
+per-key cropped mean (ns): key  discovery  placement  rankD rankR
+   0     173600     173350   14    4
+   1     173645     173437   15   15
+   2     173503     173465    5   17
+   3     173711     173421   19   13
+   4     173544     173461   10   16
+   5     173647     173413   16   12
+   6     173440     173322    2    3
+   7     173522     173203    7    0
+   8     173543     173473    9   18
+   9     173548     173385   11    7
+  10     173539     173357    8    6
+  11     173423     173401    1   10
+  12     173551     173388   12    8
+  13     173678     173607   18   19
+  14     173454     173351    3    5
+  15     173381     173320    0    2
+  16     173569     173429   13   14
+  17     173507     173405    6   11
+  18     173488     173282    4    1
+  19     173647     173390   17    9

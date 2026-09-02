@@ -254,8 +254,9 @@ def main():
               f"({'exceeds' if maxd>=DELTA_FLOOR else 'below'} the {DELTA_FLOOR} floor)")
 
     # ---- Purest identical-work stratum: accept-on-first-iteration (norm_scan constant) ----
-    print("\n=== PURE STRATUM 1:0-0-0-0-1 (accept on iter 1; norm_scan constant = 4352) ===")
     pure = [r for r in rows if r[3] == '1:0-0-0-0-1']
+    _nsc = sorted({r[4] for r in pure})
+    print(f"\n=== PURE STRATUM 1:0-0-0-0-1 (accept on iter 1; norm_scan constant = {_nsc[0] if len(_nsc)==1 else _nsc}) ===")
     if pure:
         ns_pure = {r[4] for r in pure}
         print(f"  n={len(pure)}  norm_scan values present: {sorted(ns_pure)[:4]}"

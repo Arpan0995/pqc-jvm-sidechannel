@@ -32,6 +32,7 @@ public final class WorkProfile {
         long msgSeed = 999L;
         String out = null;
         boolean selfCheck = false;
+        MLDSAParameters params = MLDSAParameters.ml_dsa_65;
 
         for (String a : args) {
             if (a.startsWith("--keys=")) numKeys = Integer.parseInt(a.substring(7));
@@ -40,6 +41,7 @@ public final class WorkProfile {
             else if (a.startsWith("--msgseed=")) msgSeed = Long.parseLong(a.substring(10));
             else if (a.startsWith("--out=")) out = a.substring(6);
             else if (a.equals("--selfcheck")) selfCheck = true;
+            else if (a.startsWith("--params=")) params = pick(a.substring(9));
             else throw new IllegalArgumentException("unknown arg: " + a);
         }
 
@@ -47,9 +49,10 @@ public final class WorkProfile {
         System.err.printf(Locale.ROOT, "corpus: %d x 32B  msgSeed=%d  sha256=%s%n",
                 numMessages, msgSeed, corpusDigest(messages));
 
+        System.err.println("param set : " + params.getName());
         MLDSASigner[] signers = new MLDSASigner[numKeys];
         for (int k = 0; k < numKeys; k++) {
-            signers[k] = signerFor(keySeed0 + k);
+            signers[k] = signerFor(keySeed0 + k, params);
         }
 
         if (selfCheck) {
@@ -112,9 +115,18 @@ public final class WorkProfile {
                 checked, mismatched, mismatched == 0 ? "PASS (trace is deterministic)" : "FAIL");
     }
 
-    private static MLDSASigner signerFor(long seed) {
+    private static MLDSAParameters pick(String v) {
+        switch (v) {
+            case "44": return MLDSAParameters.ml_dsa_44;
+            case "65": return MLDSAParameters.ml_dsa_65;
+            case "87": return MLDSAParameters.ml_dsa_87;
+            default: throw new IllegalArgumentException("--params must be 44|65|87, got " + v);
+        }
+    }
+
+    private static MLDSASigner signerFor(long seed, MLDSAParameters params) {
         MLDSAKeyPairGenerator kpg = new MLDSAKeyPairGenerator();
-        kpg.init(new MLDSAKeyGenerationParameters(new DeterministicSecureRandom(seed), MLDSAParameters.ml_dsa_65));
+        kpg.init(new MLDSAKeyGenerationParameters(new DeterministicSecureRandom(seed), params));
         AsymmetricCipherKeyPair kp = kpg.generateKeyPair();
         MLDSASigner s = new MLDSASigner();
         s.init(true, (MLDSAPrivateKeyParameters) kp.getPrivate()); // deterministic: rnd = 0

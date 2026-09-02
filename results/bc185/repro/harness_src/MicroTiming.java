@@ -9,6 +9,8 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
 import java.util.List;
 import java.util.Locale;
 import java.util.random.RandomGenerator;
@@ -47,6 +49,8 @@ public final class MicroTiming {
         String out = null;
         String runId = "RUN-C-TIME";
         long allocSeed = 0;   // 0 => allocate signers in natural key order; !=0 => shuffle alloc order
+        MLDSAParameters params = MLDSAParameters.ml_dsa_65;
+        boolean hedged = false;
 
         for (String a : args) {
             if (a.startsWith("--keys=")) numKeys = Integer.parseInt(a.substring(7));
@@ -57,6 +61,8 @@ public final class MicroTiming {
             else if (a.startsWith("--out=")) out = a.substring(6);
             else if (a.startsWith("--runid=")) runId = a.substring(8);
             else if (a.startsWith("--allocseed=")) allocSeed = Long.parseLong(a.substring(12));
+            else if (a.startsWith("--params=")) params = pick(a.substring(9));
+            else if (a.equals("--hedged")) hedged = true;
             else throw new IllegalArgumentException("unknown arg: " + a);
         }
 
@@ -85,6 +91,7 @@ public final class MicroTiming {
         // indexed by true key_id; only the order in which they are constructed changes. This is the
         // placement analog of the study's A/B swap — a per-key timing rank that survives an alloc-order
         // change and a fresh JVM follows the key's value, not its address.
+        System.err.println("param set : " + params.getName() + "   signing mode : " + (hedged ? "hedged (fresh randomness per signature)" : "deterministic (rnd=0)"));
         MLDSASigner[] signers = new MLDSASigner[numKeys];
         int[] allocOrder = new int[numKeys];
         for (int k = 0; k < numKeys; k++) allocOrder[k] = k;
@@ -95,7 +102,7 @@ public final class MicroTiming {
         System.err.println("alloc order: " + (allocSeed == 0 ? "natural" : java.util.Arrays.toString(allocOrder)));
         for (int pos = 0; pos < numKeys; pos++) {
             int k = allocOrder[pos];
-            signers[k] = signerFor(keySeed0 + k);
+            signers[k] = signerFor(keySeed0 + k, params, hedged);
         }
 
         // Warm-up (untimed).
@@ -150,12 +157,24 @@ public final class MicroTiming {
         }
     }
 
-    private static MLDSASigner signerFor(long seed) {
+    private static final SecureRandom HEDGE_RNG = new SecureRandom();
+
+    private static MLDSAParameters pick(String v) {
+        switch (v) {
+            case "44": return MLDSAParameters.ml_dsa_44;
+            case "65": return MLDSAParameters.ml_dsa_65;
+            case "87": return MLDSAParameters.ml_dsa_87;
+            default: throw new IllegalArgumentException("--params must be 44|65|87, got " + v);
+        }
+    }
+
+    private static MLDSASigner signerFor(long seed, MLDSAParameters params, boolean hedged) {
         MLDSAKeyPairGenerator kpg = new MLDSAKeyPairGenerator();
-        kpg.init(new MLDSAKeyGenerationParameters(new DeterministicSecureRandom(seed), MLDSAParameters.ml_dsa_65));
+        kpg.init(new MLDSAKeyGenerationParameters(new DeterministicSecureRandom(seed), params));
         AsymmetricCipherKeyPair kp = kpg.generateKeyPair();
         MLDSASigner s = new MLDSASigner();
-        s.init(true, (MLDSAPrivateKeyParameters) kp.getPrivate());
+        if (hedged) s.init(true, new ParametersWithRandom((MLDSAPrivateKeyParameters) kp.getPrivate(), HEDGE_RNG));
+        else s.init(true, (MLDSAPrivateKeyParameters) kp.getPrivate());
         return s;
     }
 

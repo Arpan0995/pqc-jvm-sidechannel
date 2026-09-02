@@ -179,3 +179,44 @@ per-key cropped mean (ns): key  discovery  placement  rankD rankR
 ```
 
 Reading: the placement-control spread (283 ns) equals the expected span of twenty pure-noise means (3.735 x 77 ns = 289 ns); discovery (448 ns) sits 1.5x above it. Each run carries small key-locked offsets beyond sampling noise (ANOVA F = 2.7 / 4.3, eta^2 <= 0.04%), as a signer instance parked in one place for a run would produce. Across re-allocation the per-key ranking reproduces only marginally (rho = 0.49, tau = 0.34, at the 5% edge for n = 20) and within the discovery run it barely reproduces (split-half rho 0.16-0.22). SampleInBall bytes account for 1.6 ns. The residual behaves as run-specific placement/drift at the level of a few standard errors; any key-linked component is bounded at a small fraction of 0.35% and is not excluded at the ~0.1% scale. No pre-registered threshold is approached.
+
+## Addendum 4 (2026-09-02): family replication (ML-DSA-44/-87) and hedged mode
+
+The frozen protocol was applied unchanged to the other two parameter sets and,
+time-only, to the hedged signing mode. Drivers gained a `--params` (and
+`--hedged`) flag; the -65 default path is byte-identical (determinism gate still
+0 mismatches). Thresholds and decision tree are the -65 pre-registration reused,
+so this is a replication of the rule, not a new pre-registration. Scripts:
+`repro/run_family_battery.sh`, `repro/run_hedged_check.sh`,
+`repro/analysis/family_run.sh`, `repro/analysis/hedged_analysis.py`; data
+`repro/data/{work,time}_*_{44,87}.csv.gz`, `time_*_65hedged.csv.gz`.
+
+Full battery per set (discovery / placement / fresh-key replication, 1.2M sigs each):
+
+| statistic | ML-DSA-44 | ML-DSA-65 | ML-DSA-87 |
+|---|---|---|---|
+| mean iterations (spec) | 4.368 (4.25) | 5.134 (5.1) | 3.907 (3.85) |
+| iteration ANOVA F (disc/rep) | 4.49 / 1.92 | 1.20 / 1.14 | 1.34 / 1.74 |
+| ANCOVA key var (disc/place/rep) | .0001/.0002/.0002% | .0002/.0001/.0002% | .0002/.0000/.0001% |
+| cross-key present (disc/place/rep) | 0/2/0 (of 2850) | 0/0/0 | 0/0/0 (of 2660) |
+| max Cliff delta (disc/place/rep) | .097/.152/.091 | .099/.093/.084 | .084/.090/.084 |
+| pure-stratum spread, disc | 108 ns (0.14%) | 448 ns (0.35%) | 331 ns (0.19%) |
+| rank persistence rho | 0.478 | 0.489 | 0.483 |
+
+Reading: ANCOVA key term negligible everywhere -> Outcome A terminal at step 1 at
+all three parameter sets. Within-stratum 0 present in every discovery+replication;
+the sole exception is the -44 placement control (2/2850, max delta 0.152), all on
+one key slow only in that run, none replicating -> placement artifacts by the
+frozen replication requirement. Iteration key-independence holds to noise at
+-65/-87; at -44 a small residual is detectable (F=4.49) but negligible (key
+explains 0.007% of iteration variance) -- a scheme property, not an implementation
+channel. Mean iteration counts match the Dilithium spec at every level.
+
+Hedged -65 (fresh randomness per signature; time-only, no work join; per-key time
+ANOVA): F(19,1175980)=0.52 discovery, 0.89 placement (both < 1.59 critical), key
+explains <0.002% of variance; per-key mean-time spread 0.83% is pure noise (below
+the ~3.2us 20-noise-mean span; rank persistence rho=0.22, not significant). No
+key-dependent timing channel under hedging. Lower resolution than deterministic
+(per-signature iteration randomness inflates within-key variance; a per-key effect
+below ~0.8% of the mean is unresolved), but deterministic bounds the implementation
+channel far tighter by conditioning on work.

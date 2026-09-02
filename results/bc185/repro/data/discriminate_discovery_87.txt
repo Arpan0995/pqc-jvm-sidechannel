@@ -1,0 +1,66 @@
+[discovery_87] joined rows: 1200000  (work rows 1200000, timing rows unmatched: 0)
+
+=== STEP 1a: time vs iterations (dominant driver check) ===
+  iters= 1  n= 307194  median=    172541 ns
+  iters= 2  n= 228691  median=    228333 ns
+  iters= 3  n= 169407  median=    280875 ns
+  iters= 4  n= 126462  median=    336125 ns
+  iters= 5  n=  94142  median=    390542 ns
+  iters= 6  n=  70769  median=    444417 ns
+  iters= 7  n=  52243  median=    499417 ns
+  iters= 8  n=  38558  median=    552833 ns
+  iters= 9  n=  28697  median=    607792 ns
+  iters=10  n=  21569  median=    662167 ns
+  iters=11  n=  15986  median=    716041 ns
+  iters=12  n=  11826  median=    770417 ns
+  iters=13  n=   8843  median=    824541 ns
+  iters=14  n=   6526  median=    879250 ns
+  iters=15  n=   4805  median=    933250 ns
+  iters=16  n=   3650  median=    988146 ns
+  iters=17  n=   2742  median=   1041562 ns
+  iters=18  n=   1985  median=   1095292 ns
+  iters=19  n=   1522  median=   1151979 ns
+  iters=20  n=   1093  median=   1205875 ns
+  iters=21  n=    853  median=   1258708 ns
+  iters=22  n=    583  median=   1314417 ns
+  iters=23  n=    475  median=   1372958 ns
+  iters=24  n=    348  median=   1424708 ns
+  iters=25  n=    268  median=   1477980 ns
+  iters=26  n=    205  median=   1528833 ns
+  iters=27  n=    155  median=   1581125 ns
+  iters=28  n=    103  median=   1635500 ns
+  iters=29  n=     75  median=   1695959 ns
+  iters=30  n=     54  median=   1745916 ns
+  Pearson r(iterations, time) = 0.8906   monotone medians: True
+
+=== STEP 1b: ANCOVA  time ~ iterations + C(key) ===
+  n=1200000  full R^2=0.79324  (iterations-only R^2=0.79324)
+  iterations slope = 55072.4 ns/iter  (se 25.67)
+  KEY block partial F(19,1199979) = 0.62   extra variance explained by key = 0.0002%
+  -> key term negligible/absent by pre-registered bar (>=1% residual variance)
+
+=== STEP 2: within identical profile_key, cross-key timing ===
+  well-populated strata (>= 12 keys with >= 800 sigs): 14
+  cross-key tests (key-pair x stratum): 2660
+  top 8 |t| cross-key tests (profile_key, keyA,keyB, t, delta, mean_gap_ns, holm_p):
+    3:0-2-0-0-1    k 8-k11  t=    4.29  d=-0.0480  gap=    +1332ns  holm_p=4.82e-02
+    3:0-2-0-0-1    k11-k15  t=   -4.25  d=+0.0506  gap=    -1264ns  holm_p=5.77e-02
+    1:0-0-0-0-1    k15-k 3  t=   -4.12  d=+0.0288  gap=     -331ns  holm_p=1.02e-01
+    2:1-0-0-0-1    k13-k 7  t=    3.99  d=-0.0277  gap=     +688ns  holm_p=1.74e-01
+    1:0-0-0-0-1    k13-k15  t=    3.66  d=-0.0162  gap=     +298ns  holm_p=6.67e-01
+    3:0-2-0-0-1    k18-k11  t=    3.56  d=-0.0485  gap=    +1073ns  holm_p=9.78e-01
+    1:0-0-0-0-1    k11-k 3  t=   -3.56  d=+0.0333  gap=     -289ns  holm_p=9.97e-01
+    2:0-1-0-0-1    k 2-k 7  t=    3.55  d=-0.0315  gap=     +589ns  holm_p=1.00e+00
+
+  PRE-REGISTERED 'present' (holm_p<0.05 AND |t|>4.5 AND |delta|>=0.147): 0 / 2660
+  max |Cliff's delta| across all cross-key tests = 0.0842  (below the 0.147 floor)
+
+=== PURE STRATUM 1:0-0-0-0-1 (accept on iter 1; norm_scan constant = 5888) ===
+  n=307194  norm_scan values present: [5888]  (constant => checkNorm channel contributes 0 here)
+  per-key mean time: 173381..173711 ns  spread=331 ns (0.191%)
+  extreme pair k3 vs k15: t=4.12  Cliff d=-0.0288  -> below threshold
+
+=== STEP 2b: within-stratum localization (norm_scan_coeffs, challenge_bytes) ===
+  2:0-1-0-0-1      n= 124190  r(scan,time)=+0.0007  time/scan-coeff=+0.047 ns  per-key scan spread=17 coeffs => checkNorm timing spread ~ +0.8 ns
+
+[done]

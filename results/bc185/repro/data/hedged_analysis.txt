@@ -1,0 +1,8 @@
+HEDGED ML-DSA-65 (fresh randomness per signature; time-only, no work join)
+  discovery : 1176000 sigs, 20 keys, mean 336.9 us
+  per-key mean-time spread: discovery 2785 ns (0.829%), placement 2866 ns (0.925%)
+  per-key SE of mean 863 ns -> 20 pure-noise means span ~3224 ns
+  one-way ANOVA of signing time by key: discovery F(19,1175980)=0.52, eta^2=0.0008%; placement F=0.89, eta^2=0.0014%
+  5% critical F(19, large) ~ 1.59
+  rank persistence discovery vs placement (n=20): Spearman rho=+0.224
+  detectable per-key effect at this n ~ a few x SE = order 2590 ns (0.769% of mean)

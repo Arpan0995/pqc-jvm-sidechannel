@@ -1,0 +1,70 @@
+[rerun_44] joined rows: 1200000  (work rows 1200000, timing rows unmatched: 0)
+
+=== STEP 1a: time vs iterations (dominant driver check) ===
+  iters= 1  n= 274032  median=     75083 ns
+  iters= 2  n= 212430  median=    101625 ns
+  iters= 3  n= 163429  median=    129792 ns
+  iters= 4  n= 125731  median=    156125 ns
+  iters= 5  n=  97248  median=    184500 ns
+  iters= 6  n=  74680  median=    210708 ns
+  iters= 7  n=  58113  median=    238875 ns
+  iters= 8  n=  44570  median=    265209 ns
+  iters= 9  n=  34490  median=    292375 ns
+  iters=10  n=  26329  median=    319834 ns
+  iters=11  n=  20390  median=    346625 ns
+  iters=12  n=  15561  median=    374333 ns
+  iters=13  n=  12038  median=    401104 ns
+  iters=14  n=   9325  median=    428292 ns
+  iters=15  n=   7302  median=    455666 ns
+  iters=16  n=   5587  median=    482333 ns
+  iters=17  n=   4337  median=    509833 ns
+  iters=18  n=   3349  median=    537250 ns
+  iters=19  n=   2594  median=    564292 ns
+  iters=20  n=   1989  median=    590500 ns
+  iters=21  n=   1494  median=    618604 ns
+  iters=22  n=   1137  median=    645500 ns
+  iters=23  n=    888  median=    673625 ns
+  iters=24  n=    637  median=    699000 ns
+  iters=25  n=    537  median=    727125 ns
+  iters=26  n=    395  median=    752167 ns
+  iters=27  n=    333  median=    781042 ns
+  iters=28  n=    237  median=    806958 ns
+  iters=29  n=    201  median=    834458 ns
+  iters=30  n=    150  median=    864792 ns
+  iters=31  n=    105  median=    889291 ns
+  iters=32  n=     80  median=    916792 ns
+  iters=33  n=     69  median=    946542 ns
+  iters=34  n=     52  median=    971062 ns
+  Pearson r(iterations, time) = 0.9943   monotone medians: True
+
+=== STEP 1b: ANCOVA  time ~ iterations + C(key) ===
+  n=1200000  full R^2=0.98864  (iterations-only R^2=0.98864)
+  iterations slope = 27180.7 ns/iter  (se 2.66)
+  KEY block partial F(19,1199979) = 10.64   extra variance explained by key = 0.0002%
+  -> key term negligible/absent by pre-registered bar (>=1% residual variance)
+
+=== STEP 2: within identical profile_key, cross-key timing ===
+  well-populated strata (>= 12 keys with >= 800 sigs): 15
+  cross-key tests (key-pair x stratum): 2850
+  top 8 |t| cross-key tests (profile_key, keyA,keyB, t, delta, mean_gap_ns, holm_p):
+    1:0-0-0-0-1    k 5-k 0  t=   12.61  d=-0.1150  gap=     +223ns  holm_p=5.26e-33
+    1:0-0-0-0-1    k 5-k 7  t=   11.95  d=-0.1224  gap=     +215ns  holm_p=1.74e-29
+    1:0-0-0-0-1    k18-k 5  t=  -11.72  d=+0.1158  gap=     -211ns  holm_p=3.01e-28
+    1:0-0-0-0-1    k 5-k 6  t=   11.40  d=-0.1111  gap=     +204ns  holm_p=1.14e-26
+    1:0-0-0-0-1    k17-k 5  t=  -11.33  d=+0.1131  gap=     -205ns  holm_p=2.75e-26
+    1:0-0-0-0-1    k 5-k 3  t=   10.97  d=-0.1047  gap=     +196ns  holm_p=1.45e-24
+    1:0-0-0-0-1    k 8-k 5  t=  -10.68  d=+0.1050  gap=     -195ns  holm_p=3.42e-23
+    1:0-0-0-0-1    k 1-k 5  t=  -10.64  d=+0.1032  gap=     -191ns  holm_p=5.29e-23
+
+  PRE-REGISTERED 'present' (holm_p<0.05 AND |t|>4.5 AND |delta|>=0.147): 2 / 2850
+  max |Cliff's delta| across all cross-key tests = 0.1524  (exceeds the 0.147 floor)
+
+=== PURE STRATUM 1:0-0-0-0-1 (accept on iter 1; norm_scan constant = 3072) ===
+  n=274032  norm_scan values present: [3072]  (constant => checkNorm channel contributes 0 here)
+  per-key mean time: 75336..75559 ns  spread=223 ns (0.296%)
+  extreme pair k5 vs k0: t=12.61  Cliff d=-0.1150  -> below threshold
+
+=== STEP 2b: within-stratum localization (norm_scan_coeffs, challenge_bytes) ===
+  2:1-0-0-0-1      n= 126353  r(scan,time)=+0.0115  time/scan-coeff=+0.312 ns  per-key scan spread=17 coeffs => checkNorm timing spread ~ +5.3 ns
+
+[done]

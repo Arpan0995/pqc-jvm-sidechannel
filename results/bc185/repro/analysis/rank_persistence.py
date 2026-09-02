@@ -15,24 +15,30 @@ the two campaigns).
 
 Run from results/bc185/repro/data:  python3 ../analysis/rank_persistence.py
 """
-import gzip, csv, math, statistics, json, sys
+import gzip, csv, math, statistics, json, sys, os, argparse
 from collections import defaultdict
 import numpy as np
+
+def _open(base):
+    for cand in (base + '.csv.gz', base + '.csv'):
+        if os.path.exists(cand):
+            return gzip.open(cand, 'rt') if cand.endswith('.gz') else open(cand)
+    raise FileNotFoundError(base + '.csv[.gz]')
 
 CROP_HI = 0.98
 PURE = '1:0-0-0-0-1'
 
-def load_work(fn):
+def load_work(base):
     pure = {}
-    with gzip.open(fn, 'rt') as f:
+    with _open(base) as f:
         for r in csv.DictReader(f):
             if r['profile_key'] == PURE:
                 pure[(int(r['key_id']), int(r['message_id']))] = int(r['challenge_bytes'])
     return pure
 
-def load_time(fn, pure):
+def load_time(base, pure):
     per = defaultdict(list)
-    with gzip.open(fn, 'rt') as f:
+    with _open(base) as f:
         for r in csv.DictReader(f):
             k = (int(r['key_id']), int(r['message_id']))
             if k in pure:
@@ -67,8 +73,14 @@ def anova(per):
     return (ssb / (K - 1)) / (ssw / (N - K)), 100 * ssb / (ssb + ssw), K - 1, N - K
 
 def main():
-    pure = load_work('work_discovery.csv.gz')
-    D = load_time('time_discovery.csv.gz', pure); R = load_time('time_rerun.csv.gz', pure)
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--suffix', default='', help='param suffix, e.g. _44 (default: -65 files, no suffix)')
+    ap.add_argument('--dir', default='.')
+    a = ap.parse_args()
+    sfx = a.suffix
+    base = lambda name: os.path.join(a.dir, name + sfx)
+    pure = load_work(base('work_discovery'))
+    D = load_time(base('time_discovery'), pure); R = load_time(base('time_rerun'), pure)
     mD, mR = means(D), means(R)
     out = {}
     out['n_pure'] = sum(len(v) for v in D.values()); out['keys'] = len(mD)
@@ -98,7 +110,7 @@ def main():
     print("\nper-key cropped mean (ns): key  discovery  placement  rankD rankR")
     for k in sorted(mD):
         print(f"  {k:2d}  {mD[k]:9.0f}  {mR[k]:9.0f}   {rd[k]:2d}   {rr[k]:2d}")
-    json.dump(out, open('rank_persistence.json', 'w'), indent=1)
+    json.dump(out, open(os.path.join(a.dir, 'rank_persistence' + sfx + '.json'), 'w'), indent=1)
 
 if __name__ == '__main__':
     main()
